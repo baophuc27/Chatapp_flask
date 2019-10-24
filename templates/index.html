@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>MMT</title>
+    <link rel="stylesheet" href="">
+    <link rel="icon" href="banner.png" >
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+
+
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <nav class="navbar navbar-expand-lg bg-dark navbar-dark">
+                    <ul class="navbar-nav">
+                            <li class="nav-item">
+                              <a class="nav-link" href="signinPage">Sign in</a>
+                            </li>
+                            <li class="nav-item">
+                              <a class="nav-link" href="#">Sign up</a>
+                            </li>
+                          </ul>
+            </nav>
+        </div>
+
+        <div class="jumbotron">
+            <h1>CHAT MMT</h1>
+            <form action="/signup" class="form-signup" method="POST">
+                <input type="text" name="name" id="name" class="form-control" placeholder="Username" >
+                <input type="password" name="password" id="password" class="form-control" placeholder="Password">
+                <input type="password" name="confirm-pwd" id="confirm-pwd" class="form-control" placeholder="Confirm password">
+                <button id="btnSignUp" type="submit" class="btn btn-lg btn-primary btn-block">Sign up</button>
+            </form>
+        </div>
+    </div>
+</body>
+</html>
