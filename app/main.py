@@ -9,11 +9,13 @@ import asyncio
 app = Flask(__name__)
 app.secret_key = 'alo'
 
+
 class User():
-    def __init__(self,id,name,avatar):
-        self.id=id
-        self.name=name
-        self.avatar=avatar
+    def __init__(self, id, name, avatar):
+        self.id = id
+        self.name = name
+        self.avatar = avatar
+
 
 @app.route("/")
 def index():
@@ -37,29 +39,28 @@ def signupPage():
 
 @app.route("/signup", methods=["POST", "GET"])
 def signup():
-    def signup():
-    if request.method=="POST":
-            name=request.form['name']
-            password=request.form['password']
-            dbHandler.signup(name,password)
-            id=dbHandler.getId(name)
-            avatar=dbHandler.getAvatar(name)
-            session['user']=User(id,name,avatar).__dict__
-            return render_template("messages.html")
+    if request.method == "POST":
+        name = request.form['name']
+        password = request.form['password']
+        dbHandler.signup(name, password)
+        id = dbHandler.getId(name)
+        avatar = dbHandler.getAvatar(name)
+        session['user'] = User(id, name, avatar).__dict__
+    return render_template("messages.html")
 
 
 @app.route("/signin", methods=["POST", "GET"])
 def signin():
-    if request.method=="POST":
-            name=request.form['name']
-            password=request.form['password']
-            if(dbHandler.signin(name,password)):
-                id=dbHandler.getId(name)
-                avatar=dbHandler.getAvatar(name)
-                session['user']=User(id,name,avatar).__dict__
-                return render_template("messages.html")
-            else:
-                return render_template("signin.html")
+    if request.method == "POST":
+        name = request.form['name']
+        password = request.form['password']
+        if(dbHandler.signin(name, password)):
+            id = dbHandler.getId(name)
+            avatar = dbHandler.getAvatar(name)
+            session['user'] = User(id, name, avatar).__dict__
+            return render_template("messages.html")
+        else:
+            return render_template("signin.html")
 
 
 def flaskThread():

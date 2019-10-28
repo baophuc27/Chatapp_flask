@@ -2987,6 +2987,18 @@ footer {
 }
 .row {
 	margin: 0;
+	height: 80vh;
+	background-color: #fff;
+}
+
+#inchat{
+	display: none;
+}
+#frontpage{
+	display: block;
+}
+.card-deck .card {
+    max-width: calc(25% - 30px);
 }
 .gallery_pt > a {
 	position: absolute;
@@ -4589,9 +4601,11 @@ a:hover {
 
 
 /* ============== messages-page ============== */
-
+.left{
+	height: 80vh;
+}
 .messages-page {
-	padding: 20px 0 75px 0;
+	padding: 20px 0 15px 0;
 }
 .messages-sec {
 	float: left;
@@ -4600,6 +4614,7 @@ a:hover {
 .msgs-list {
 	float: left;
 	width: 100%;
+	height:100%;
 	background-color: #fff;
 	border-left: 1px solid #e4e4e4;
 	border-bottom: 1px solid #e4e4e4;
@@ -4609,6 +4624,7 @@ a:hover {
 	float: left;
 	width: 100%;
 	padding: 36px 20px;
+	height:10%;
 }
 .msg-title > h3 {
 	color: #000000;
@@ -4635,6 +4651,8 @@ a:hover {
 .messages-list {
 	float: left;
 	width: 100%;
+	height: 86%;
+	overflow-y:auto;
 }
 .messages-list ul {
 	float: left;
@@ -4643,7 +4661,7 @@ a:hover {
 .messages-list ul li {
 	float: left;
 	width: 100%;
-	padding: 20px;
+	padding: 15px;
 	border-bottom: 1px solid #eeeeee;
 	cursor: pointer;
 }
@@ -4736,6 +4754,7 @@ a:hover {
 .main-conversation-box {
 	float: left;
 	width: 100%;
+	height: 100%;
 	background-color: #fff;
 	position: relative;
 	border-right: 1px solid #e4e4e4;
@@ -4861,7 +4880,8 @@ a:hover {
 .messages-line {
 	float: left;
 	width: 100%;
-	height: 604px;
+	height: 85%;
+	overflow: auto;
 }
 
 /* ============== message-send-area ============ */
@@ -4870,8 +4890,9 @@ a:hover {
 	float: left;
 	width: 100%;
 	background-color: #f3f5f7;
-	padding: 25px 20px 15px 20px;
+	padding: 5px 10px 5px 10px;
 	border: 1px solid #eeeeee;
+	height: 15%;
 }
 .message-send-area form {
 	float: left;
@@ -5065,6 +5086,10 @@ a:hover {
 }
 .pd-right-none {
 	padding-right: 0;
+	
+}
+.right{
+	height: 80vh!important;
 }
 /* =========== navigation ============ */
 

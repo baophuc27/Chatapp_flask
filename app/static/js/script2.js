@@ -1,14 +1,15 @@
-var username = document.getElementById("userName"),
-  btn_login = document.getElementById("login"),
-  friend = document.getElementById("friendName"),
-  btn_req = document.getElementById("request"),
-  message = document.getElementById("message"),
-  btn_send = document.getElementById("send"),
-  chat = document.getElementById("chat-window"),
-  feedback = document.getElementById("feedback");
+// var username = document.getElementById("userName"),
+//   btn_login = document.getElementById("login"),
+//   friend = document.getElementById("friendName"),
+//   btn_req = document.getElementById("request"),
+//   message = document.getElementById("message"),
+//   btn_send = document.getElementById("send"),
+//   chat = document.getElementById("chat-window"),
+//   feedback = document.getElementById("feedback");
 
-var peerConnection, dataChannel;
-
+var numConnnection = 0;
+var connection = [];
+myname = "";
 // set RTCPeerConnection
 
 window.RTCPeerConnection =
@@ -33,21 +34,12 @@ var configuration = {
       credential: "10e15110-f729-11e9-816b-322c48b34491",
       urls: [
         "turn:ss-turn2.xirsys.com:80?transport=udp",
-        "turn:ss-turn2.xirsys.com:3478?transport=udp",
-        "turn:ss-turn2.xirsys.com:80?transport=tcp",
         "turn:ss-turn2.xirsys.com:3478?transport=tcp"
       ]
     }
   ]
 };
 
-peerConnection = new RTCPeerConnection(configuration);
-
-//Definition of the data channel
-peerConnection.ondatachannel = function(ev) {
-  dataChannel = ev.channel;
-  openDataChannel();
-};
 serverAddr = "10.228.190.104";
 serverPort = "";
 socket = new WebSocket("ws:" + serverAddr + ":" + serverPort);
@@ -61,39 +53,13 @@ socket.onclose = function(event) {
   if (event.wasClean) {
   } else {
     console.log("close");
-    socket.send("ssss");
   }
 };
 socket.onerror = function(error) {
   alert(`[error] ${error.message}`);
 };
 
-btn_req.addEventListener("click", function() {
-  var dataChannelOptions = {
-    reliable: true
-  };
-  dataChannel = peerConnection.createDataChannel(
-    "dataChannel1",
-    dataChannelOptions
-  );
-  openDataChannel();
-  peerConnection.createOffer(
-    function(offer) {
-      socket.send(
-        JSON.stringify({
-          type: "offer",
-          username: friend.value,
-          offer: offer
-        })
-      );
-
-      peerConnection.setLocalDescription(offer);
-    },
-    function(error) {
-      console.log("Error: ", error);
-    }
-  );
-});
+btn_req.addEventListener("click", function() {});
 btn_send.addEventListener("click", function(event) {
   var val = message.value;
   chat.innerHTML +=
@@ -104,18 +70,8 @@ btn_send.addEventListener("click", function(event) {
   message.value = "";
   chat.scrollTop = chat.scrollHeight - chat.clientHeight;
 });
-peerConnection.onicecandidate = function(event) {
-  if (event.candidate) {
-    socket.send(
-      JSON.stringify({
-        type: "candidate",
-        username: friend.value,
-        candidate: event.candidate
-      })
-    );
-  }
-};
-function handleMessage(data) {
+
+function handleMessage(pc, data) {
   switch (data.type) {
     case "message":
       console.log(data.content);
@@ -124,16 +80,14 @@ function handleMessage(data) {
       username.innerText = data.id;
       break;
     case "offer":
-      peerConnection.setRemoteDescription(
-        new RTCSessionDescription(data.offer)
-      );
-      peerConnection.createAnswer(
+      pc.setRemoteDescription(new RTCSessionDescription(data.offer));
+      pc.createAnswer(
         function(answer) {
-          peerConnection.setLocalDescription(answer);
+          pc.setLocalDescription(answer);
           socket.send(
             JSON.stringify({
               type: "answer",
-              username: friend.value,
+              username: data.from,
               answer: answer
             })
           );
@@ -144,12 +98,10 @@ function handleMessage(data) {
       );
       break;
     case "answer":
-      peerConnection.setRemoteDescription(
-        new RTCSessionDescription(data.answer)
-      );
+      pc.setRemoteDescription(new RTCSessionDescription(data.answer));
       break;
     case "candidate":
-      peerConnection.addIceCandidate(new RTCIceCandidate(data.candidate));
+      pc.addIceCandidate(new RTCIceCandidate(data.candidate));
       console.log("ICE Candidate added.");
       break;
     default:
@@ -157,12 +109,12 @@ function handleMessage(data) {
   }
 }
 
-function openDataChannel() {
-  dataChannel.onerror = function(error) {
+function openDataChannel(dc) {
+  dc.onerror = function(error) {
     console.log("Error on data channel:", error);
   };
 
-  dataChannel.onmessage = function(event) {
+  dc.onmessage = function(event) {
     console.log("Message received:", event.data);
     chat.innerHTML +=
       `<div class="feedback"><p> <strong>` +
@@ -171,11 +123,11 @@ function openDataChannel() {
     chat.scrollTop = chat.scrollHeight - chat.clientHeight;
   };
 
-  dataChannel.onopen = function() {
+  dc.onopen = function() {
     console.log("Channel established.");
   };
 
-  dataChannel.onclose = function() {
+  dc.onclose = function() {
     console.log("Channel closed.");
   };
 }
@@ -185,4 +137,68 @@ function enterEV() {
     return false;
   }
   return true;
+}
+
+function backtoFront() {
+  fp = document.getElementById("frontpage");
+  ic = document.getElementById("inchat");
+  if (ic.style.display !== "none") {
+    ic.style.display = "none";
+  }
+  fp.style.display = "block";
+  return true;
+}
+function gotoChat() {
+  fp = document.getElementById("frontpage");
+  ic = document.getElementById("inchat");
+  if (fp.style.display !== "none") {
+    fp.style.display = "none";
+  }
+  ic.style.display = "block";
+  return true;
+}
+function ask(name) {
+  numConnnection++;
+  gotoChat();
+  var peerConnection, dataChannel;
+  peerConnection = new RTCPeerConnection(configuration);
+  //Definition of the data channel
+  var dataChannelOptions = {
+    reliable: true
+  };
+  dataChannel = peerConnection.createDataChannel(
+    "dataChannel" + numConnnection,
+    dataChannelOptions
+  );
+  openDataChannel(dataChannel);
+  peerConnection.createOffer(
+    function(offer) {
+      socket.send(
+        JSON.stringify({
+          type: "offer",
+          username: name,
+          offer: offer
+        })
+      );
+      peerConnection.setLocalDescription(offer);
+    },
+    function(error) {
+      console.log("Error: ", error);
+    }
+  );
+  peerConnection.ondatachannel = function(ev) {
+    dataChannel = ev.channel;
+    openDataChannel();
+  };
+  peerConnection.onicecandidate = function(event) {
+    if (event.candidate) {
+      socket.send(
+        JSON.stringify({
+          type: "candidate",
+          username: name,
+          candidate: event.candidate
+        })
+      );
+    }
+  };
 }
