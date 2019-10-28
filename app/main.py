@@ -3,7 +3,7 @@ import sqlite3
 import os
 import models as dbHandler
 import socket
-from sv import startWS
+from websocketSV import startWS
 import threading
 import asyncio
 app = Flask(__name__)
@@ -54,7 +54,8 @@ def signin():
 
 
 def flaskThread():
-    app.run()
+    addr = socket.gethostbyname(socket.gethostname())
+    app.run(host=addr)
 
 
 def websocketThread():
@@ -66,4 +67,3 @@ if __name__ == "__main__":
     wsThread = threading.Thread(target=websocketThread)
     fskThread.start()
     wsThread.start()
-    # websocketThread()

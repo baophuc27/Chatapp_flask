@@ -5,15 +5,15 @@ import logging
 import websockets
 import random
 import string
-
+import socket
 USERS = list()
 
 
 def startWS():
+    addr = socket.gethostbyname(socket.gethostname())
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
     logging.basicConfig()
-    addr = "127.0.0.1"
     port = 4200
     start_server = websockets.serve(counter, addr, port)
     print("websocket server's running on "+str(addr)+":"+str(port))
@@ -27,7 +27,7 @@ def findClient(id, userList):
             return user['socket']
 
 
-def randomString(stringLength=8):
+def randomString(stringLength=2):
     letters = string.ascii_lowercase
     return ''.join(random.sample(letters, stringLength))
 
@@ -67,7 +67,7 @@ async def unlogin(websocket, id):
 
 async def counter(websocket, path):
     # login(websocket) sends user_event() to websocket
-    socketID = randomString(10)
+    socketID = randomString(2)
     await login(websocket, socketID)
     try:
         await websocket.send(state_event())
