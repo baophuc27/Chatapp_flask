@@ -14,7 +14,7 @@ def startWS():
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
     logging.basicConfig()
-    port = 4200
+    port = 4000
     start_server = websockets.serve(counter, addr, port)
     print("websocket server's running on "+str(addr)+":"+str(port))
     asyncio.get_event_loop().run_until_complete(start_server)

@@ -26,10 +26,14 @@
 	<header>
 	<nav class="navbar navbar-expand-lg navbar-light bg-light">
 	  
-		  <form class="form-inline my-2 my-lg-0">
-			<input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
+		  <form class="form-inline my-2 my-lg-0" action="/search">
+			<input class="form-control mr-sm-2" type="search" id="search-input" name="search-input" placeholder="Search" aria-label="Search">
 			<button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+			{% for user_data in search_data %}
+			<td>{{ user_data.name }}</td>
+			{% endfor %}
 		  </form>
+		  </select>
 	  </nav>
 </header>
 	<div class="wrapper">
@@ -52,7 +56,7 @@
 										<li class="active">
 											<div class="usr-msg-details">
 												<div class="usr-ms-img">
-													<img src="images/resources/m-img1.png" alt="">
+													<a href={{ session['user'].avatar}}></a>
 													<span class="msg-status"></span>
 												</div>
 												<div class="usr-mg-info">
@@ -66,7 +70,9 @@
 										<li>
 											<div class="usr-msg-details">
 												<div class="usr-ms-img">
-													<img src="images/resources/m-img2.png" alt="">
+													<img src={{ session['user'].avatar }} alt="">
+													<p>Alooo</p>
+													<p>{{ session['user'].name }}</p>
 												</div>
 												<div class="usr-mg-info">
 													<h3>David Vane</h3>
@@ -149,8 +155,8 @@
 											<img src="images/resources/m-img1.png" alt="">
 										</div>
 										<div class="usr-mg-info">
-											<h3>{{session['name']}}</h3>
-											<p>{{session['ip']}}</p>
+											<h3>{{session['user'].name}}</h3>
+											<img src="https://i.imgur.com/jUmCAZj.jpg" alt="" height="50">
 										</div><!--usr-mg-info end-->
 									</div>
 									<a href="#" title=""><i class="fa fa-ellipsis-v"></i></a>
@@ -288,7 +294,13 @@
 <script type="text/javascript" src="lib/slick/slick.min.js"></script>
 <script type="text/javascript" src="js/scrollbar.js"></script>
 <script type="text/javascript" src="js/script.js"></script>
-
+<script>
+	$(document).ready(function(){
+		$('#search-input').keyup(function(){
+			$(#)
+		})
+	})
+</script>
 </body>
 
 <!-- Mirrored from gambolthemes.net/workwise_demo/HTML/messages.html by HTTrack Website Copier/3.x [XR&CO'2014], Sun, 28 Apr 2019 14:19:48 GMT -->

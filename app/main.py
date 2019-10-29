@@ -6,6 +6,7 @@ import socket
 from websocketSV import startWS
 import threading
 import asyncio
+import json
 app = Flask(__name__)
 app.secret_key = 'alo'
 
@@ -37,7 +38,6 @@ def signupPage():
 
 @app.route("/signup", methods=["POST", "GET"])
 def signup():
-    def signup():
     if request.method=="POST":
             name=request.form['name']
             password=request.form['password']
@@ -61,6 +61,13 @@ def signin():
             else:
                 return render_template("signin.html")
 
+@app.route("/search")
+def search():
+        search_input=request.args.get('search-input')
+        searchDict=dbHandler.searchUser(search_input)
+        json_data=jsonify(json.dumps(searchDict)
+        # print(type(json_data))
+        return render_template("a.html",json_data=json_data)
 
 def flaskThread():
     addr = socket.gethostbyname(socket.gethostname())
