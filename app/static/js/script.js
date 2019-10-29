@@ -8,7 +8,8 @@ var message = document.getElementById("message"),
 
 var numConnnection = 0;
 var connection = [];
-myname = "myna" + (Math.floor(Math.random() * 10) % 4);
+var myname;
+var currentFriend;
 // set RTCPeerConnection
 
 window.RTCPeerConnection =
@@ -33,18 +34,18 @@ var configuration = {
       credential: "10e15110-f729-11e9-816b-322c48b34491",
       urls: [
         "turn:ss-turn2.xirsys.com:80?transport=udp",
+        "turn:ss-turn2.xirsys.com:3478?transport=udp",
+        "turn:ss-turn2.xirsys.com:80?transport=tcp",
         "turn:ss-turn2.xirsys.com:3478?transport=tcp"
       ]
     }
   ]
 };
 
-serverAddr = "192.168.40.127";
+serverAddr = "10.20.72.51";
 serverPort = "4200";
 socket = new WebSocket("ws:" + serverAddr + ":" + serverPort);
-socket.onopen = function(e) {
-  socket.send(JSON.stringify({ username: myname }));
-};
+socket.onopen = function(e) {};
 socket.onmessage = function(event) {
   handleMessage(JSON.parse(event.data));
 };
@@ -64,10 +65,10 @@ function handleMessage(data) {
       console.log(data.content);
       break;
     case "connect":
-      username.innerText = data.from;
+      // username.value = data.from;
       break;
     case "offer":
-      console.log(data);
+      currentFriend = data.from;
       numConnnection++;
       gotoChat();
       var peerConnection, dataChannel;
@@ -98,6 +99,7 @@ function handleMessage(data) {
       peerConnection.createAnswer(
         function(answer) {
           peerConnection.setLocalDescription(answer);
+          console.log("nhan da set local");
           socket.send(
             JSON.stringify({
               type: "answer",
@@ -111,6 +113,23 @@ function handleMessage(data) {
           console.log("Error on receiving the offer: ", error);
         }
       );
+      peerConnection.ondatachannel = function(ev) {
+        console.log("dac");
+        NewdataChannel = ev.channel;
+        openDataChannel(NewdataChannel);
+      };
+      peerConnection.onicecandidate = function(event) {
+        if (event.candidate) {
+          socket.send(
+            JSON.stringify({
+              type: "candidate",
+              from: myname,
+              username: data.from,
+              candidate: event.candidate
+            })
+          );
+        }
+      };
       break;
     case "answer":
       pc = findPC(data.from);
@@ -118,9 +137,9 @@ function handleMessage(data) {
       if (pc) pc.setRemoteDescription(new RTCSessionDescription(data.answer));
       break;
     case "candidate":
-      console.log(connection, data);
       pc = findPC(data.from);
       if (pc) {
+        console.log(pc, data.candidate);
         pc.addIceCandidate(new RTCIceCandidate(data.candidate)).catch(e =>
           console.error(e)
         );
@@ -157,6 +176,7 @@ function openDataChannel(dc) {
 
 function ask(name) {
   numConnnection++;
+  currentFriend = name;
   gotoChat();
   var peerConnection, dataChannel;
   conn = {
@@ -192,16 +212,24 @@ function ask(name) {
         })
       );
       peerConnection.setLocalDescription(offer);
+      console.log("gui da set local");
     },
     function(error) {
       console.log("Error: ", error);
     }
   );
   peerConnection.ondatachannel = function(ev) {
-    dataChannel = ev.channel;
-    openDataChannel(dataChannel);
+    console.log("dac");
+    NewdataChannel = ev.channel;
+    openDataChannel(NewdataChannel);
   };
   peerConnection.onicecandidate = function(event) {
+    console.log({
+      type: "candidate",
+      from: myname,
+      username: name,
+      candidate: event.candidate
+    });
     if (event.candidate) {
       socket.send(
         JSON.stringify({
@@ -222,7 +250,7 @@ btn_send.addEventListener("click", function(event) {
     chat.innerHTML +=
       `<div class="message-right message"><p>` + val + `</p></div>`;
     message.value = "";
-    currentDC = connection[0].dataChannel;
+    currentDC = findDC(currentFriend);
     currentDC.send(val);
   }
   chat.scrollTop = chat.scrollHeight - chat.clientHeight;
@@ -260,6 +288,18 @@ function findPC(name) {
     if (connection[i].username == name) {
       return connection[i].peerConnection;
     }
-    return null;
   }
+  return null;
+}
+function findDC(name) {
+  for (let i = 0; i < connection.length; i++) {
+    if (connection[i].username == name) {
+      return connection[i].dataChannel;
+    }
+  }
+  return null;
+}
+function saveName() {
+  myname = document.getElementById("myname").value;
+  socket.send(JSON.stringify({ username: myname }));
 }

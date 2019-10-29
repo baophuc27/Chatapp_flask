@@ -1,17 +1,32 @@
-// var username = document.getElementById("userName"),
-//   btn_login = document.getElementById("login"),
-//   friend = document.getElementById("friendName"),
-//   btn_req = document.getElementById("request"),
-//   message = document.getElementById("message"),
-//   btn_send = document.getElementById("send"),
-//   chat = document.getElementById("chat-window"),
-//   feedback = document.getElementById("feedback");
+function saveName() {
+  myname = document.getElementById("myname").value;
+  socket.send(JSON.stringify({ username: myname }));
+}
+
+function backtoFront() {
+  fp = document.getElementById("frontpage");
+  ic = document.getElementById("inchat");
+  if (ic.style.display !== "none") {
+    ic.style.display = "none";
+  }
+  fp.style.display = "block";
+  return true;
+}
+function gotoChat() {
+  fp = document.getElementById("frontpage");
+  ic = document.getElementById("inchat");
+  if (fp.style.display !== "none") {
+    fp.style.display = "none";
+  }
+  ic.style.display = "flex";
+  return true;
+}
 
 var numConnnection = 0;
 var connection = [];
-myname = "";
-// set RTCPeerConnection
+var myname;
 
+// set RTCPeerConnection
 window.RTCPeerConnection =
   window.RTCPeerConnection ||
   window.mozRTCPeerConnection ||
@@ -34,18 +49,18 @@ var configuration = {
       credential: "10e15110-f729-11e9-816b-322c48b34491",
       urls: [
         "turn:ss-turn2.xirsys.com:80?transport=udp",
+        "turn:ss-turn2.xirsys.com:3478?transport=udp",
+        "turn:ss-turn2.xirsys.com:80?transport=tcp",
         "turn:ss-turn2.xirsys.com:3478?transport=tcp"
       ]
     }
   ]
 };
 
-serverAddr = "10.228.190.104";
-serverPort = "";
+serverAddr = "10.20.72.51";
+serverPort = "4200";
 socket = new WebSocket("ws:" + serverAddr + ":" + serverPort);
-socket.onopen = function(e) {
-  console.log(e.data);
-};
+socket.onopen = function(e) {};
 socket.onmessage = function(event) {
   handleMessage(JSON.parse(event.data));
 };
@@ -58,124 +73,50 @@ socket.onclose = function(event) {
 socket.onerror = function(error) {
   alert(`[error] ${error.message}`);
 };
-
-btn_req.addEventListener("click", function() {});
-btn_send.addEventListener("click", function(event) {
-  var val = message.value;
-  chat.innerHTML +=
-    `<div class="output"><p> <strong>` +
-    message.value +
-    `</strong> </p> </div>`;
-  dataChannel.send(val);
-  message.value = "";
-  chat.scrollTop = chat.scrollHeight - chat.clientHeight;
-});
-
-function handleMessage(pc, data) {
-  switch (data.type) {
-    case "message":
-      console.log(data.content);
-      break;
-    case "connect":
-      username.innerText = data.id;
-      break;
-    case "offer":
-      pc.setRemoteDescription(new RTCSessionDescription(data.offer));
-      pc.createAnswer(
-        function(answer) {
-          pc.setLocalDescription(answer);
-          socket.send(
-            JSON.stringify({
-              type: "answer",
-              username: data.from,
-              answer: answer
-            })
-          );
-        },
-        function(error) {
-          console.log("Error on receiving the offer: ", error);
-        }
-      );
-      break;
-    case "answer":
-      pc.setRemoteDescription(new RTCSessionDescription(data.answer));
-      break;
-    case "candidate":
-      pc.addIceCandidate(new RTCIceCandidate(data.candidate));
-      console.log("ICE Candidate added.");
-      break;
-    default:
-      break;
-  }
-}
-
-function openDataChannel(dc) {
-  dc.onerror = function(error) {
-    console.log("Error on data channel:", error);
-  };
-
-  dc.onmessage = function(event) {
-    console.log("Message received:", event.data);
-    chat.innerHTML +=
-      `<div class="feedback"><p> <strong>` +
-      event.data +
-      `</strong> </p> </div>`;
-    chat.scrollTop = chat.scrollHeight - chat.clientHeight;
-  };
-
-  dc.onopen = function() {
-    console.log("Channel established.");
-  };
-
-  dc.onclose = function() {
-    console.log("Channel closed.");
-  };
-}
-function enterEV() {
-  if (event.which == 13 || event.keyCode == 13) {
-    btn_send.click();
-    return false;
-  }
-  return true;
-}
-
-function backtoFront() {
-  fp = document.getElementById("frontpage");
-  ic = document.getElementById("inchat");
-  if (ic.style.display !== "none") {
-    ic.style.display = "none";
-  }
-  fp.style.display = "block";
-  return true;
-}
-function gotoChat() {
-  fp = document.getElementById("frontpage");
-  ic = document.getElementById("inchat");
-  if (fp.style.display !== "none") {
-    fp.style.display = "none";
-  }
-  ic.style.display = "block";
-  return true;
-}
 function ask(name) {
-  numConnnection++;
   gotoChat();
-  var peerConnection, dataChannel;
-  peerConnection = new RTCPeerConnection(configuration);
-  //Definition of the data channel
+  conn = {
+    id: numConnnection,
+    peerConnection: peerConnection,
+    dataChannel: dataChannel,
+    username: name
+  };
+  connection.push(conn);
+  peerConnection = connection[0].peerConnection = new RTCPeerConnection(
+    configuration
+  );
+  //tạo data channel
   var dataChannelOptions = {
     reliable: true
   };
-  dataChannel = peerConnection.createDataChannel(
+  dataChannel = connection[0].dataChannel = peerConnection.createDataChannel(
     "dataChannel" + numConnnection,
     dataChannelOptions
   );
-  openDataChannel(dataChannel);
+  dataChannel.onerror = function(error) {
+    console.log("Error on data channel:", error);
+  };
+
+  dataChannel.onmessage = function(event) {
+    console.log("Message received:", event.data);
+    chat.innerHTML +=
+      `<div class="message-left message"><p>` + event.data + `</p></div>`;
+    chat.scrollTop = chat.scrollHeight - chat.clientHeight;
+  };
+
+  dataChannel.onopen = function() {
+    console.log("Channel established.");
+  };
+
+  dataChannel.onclose = function() {
+    console.log("Channel closed.");
+  };
   peerConnection.createOffer(
     function(offer) {
       socket.send(
         JSON.stringify({
           type: "offer",
+          from: myname,
           username: name,
           offer: offer
         })
@@ -187,14 +128,22 @@ function ask(name) {
     }
   );
   peerConnection.ondatachannel = function(ev) {
+    console.log("dac");
     dataChannel = ev.channel;
-    openDataChannel();
+    openDataChannel(dataChannel);
   };
   peerConnection.onicecandidate = function(event) {
+    console.log({
+      type: "candidate",
+      from: myname,
+      username: name,
+      candidate: event.candidate
+    });
     if (event.candidate) {
       socket.send(
         JSON.stringify({
           type: "candidate",
+          from: myname,
           username: name,
           candidate: event.candidate
         })

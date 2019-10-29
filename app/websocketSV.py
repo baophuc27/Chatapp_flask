@@ -58,12 +58,20 @@ async def notify_users(id):
 async def login(websocket, id):
     USERS.append({"socketID": id, "socket": websocket})
     await websocket.send(json.dumps({"type": "connect", "id": id}))
-    await notify_users(id)
+    if USERS:
+        message = json.dumps({"type": "message",
+                              "content": "user " + id + " has been connected"})
+        print(USERS)
+        await asyncio.wait([user['socket'].send(message) for user in USERS])
 
 
 async def unlogin(websocket, id):
     USERS.remove({"socketID": id, "socket": websocket})
-    await notify_users(id)
+    if USERS:
+        message = json.dumps({"type": "message",
+                              "content": "user " + id + " has been disconnected"})
+        print(USERS)
+        await asyncio.wait([user['socket'].send(message) for user in USERS])
 
 
 async def counter(websocket, path):
@@ -76,17 +84,8 @@ async def counter(websocket, path):
         await websocket.send(state_event())
         async for message in websocket:
             data = json.loads(message)
+            print(message)
             sk = findClient(data['username'], USERS)
             await sk.send(message)
     finally:
-        await unlogin(websocket, socketID)
-
-
-def handleRequest(data: dict):
-    if data['type'] == "offer":
-        pass
-    elif data['type'] == "answer":
-        pass
-    elif data['type'] == "candidate":
-        pass
-    return json.dumps(data)
+        await unlogin(websocket, initData['username'])

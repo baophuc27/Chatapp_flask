@@ -1,14 +1,23 @@
-var username = document.getElementById("userName"),
-  btn_login = document.getElementById("login"),
-  friend = document.getElementById("friendName"),
-  btn_req = document.getElementById("request"),
-  message = document.getElementById("message"),
+var username = document.getElementById("myname"),
+  save = document.getElementById("save");
+//   btn_login = document.getElementById("login"),
+// friend = document.getElementById("friendName"),
+var message = document.getElementById("message"),
   btn_send = document.getElementById("send"),
+  chat = document.getElementById("chat"),
+  btn_req = document.getElementById("request"),
+  friend = document.getElementById("friendName");
+//   feedback = document.getElementById("feedback");
+// var username = document.getElementById("userName"),
+//   btn_login = document.getElementById("login"),
+//
+//   message = document.getElementById("message"),
+var btn_send = document.getElementById("send"),
   chat = document.getElementById("chat-window"),
   feedback = document.getElementById("feedback");
 
 var peerConnection, dataChannel;
-
+var myname;
 // set RTCPeerConnection
 
 window.RTCPeerConnection =
@@ -48,12 +57,10 @@ peerConnection.ondatachannel = function(ev) {
   dataChannel = ev.channel;
   openDataChannel();
 };
-serverAddr = "192.168.40.127";
+serverAddr = "10.20.72.51";
 serverPort = "4200";
 socket = new WebSocket("ws:" + serverAddr + ":" + serverPort);
-socket.onopen = function(e) {
-  console.log(e.data);
-};
+socket.onopen = function(e) {};
 socket.onmessage = function(event) {
   handleMessage(JSON.parse(event.data));
 };
@@ -133,6 +140,7 @@ function handleMessage(data) {
           socket.send(
             JSON.stringify({
               type: "answer",
+              from: myname,
               username: friend.value,
               answer: answer
             })
@@ -163,11 +171,21 @@ function openDataChannel() {
   };
 
   dataChannel.onmessage = function(event) {
+    var link;
     console.log("Message received:", event.data);
-    chat.innerHTML +=
-      `<div class="feedback"><p> <strong>` +
-      event.data +
-      `</strong> </p> </div>`;
+    if (typeof event.data !== "string") {
+      var blob = event.data;
+      link = URL.createObjectURL(blob);
+      chat.innerHTML +=
+        `<div class="feedback"><p> <strong> <a href=" ` +
+        link +
+        ` " >received a file</a></strong> </p> </div>`;
+    } else {
+      chat.innerHTML +=
+        `<div class="feedback"><p> <strong>` +
+        event.data.name +
+        `</strong> </p> </div>`;
+    }
     chat.scrollTop = chat.scrollHeight - chat.clientHeight;
   };
 
@@ -189,4 +207,10 @@ function enterEV() {
 }
 function saveName() {
   myname = document.getElementById("myname").value;
+  socket.send(JSON.stringify({ username: myname }));
 }
+
+document.querySelector("input[type=file]").onchange = function() {
+  var file = this.files[0];
+  dataChannel.send(file);
+};
