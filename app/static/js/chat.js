@@ -48,8 +48,8 @@ peerConnection.ondatachannel = function(ev) {
   dataChannel = ev.channel;
   openDataChannel();
 };
-serverAddr = "10.228.190.104";
-serverPort = "";
+serverAddr = "192.168.40.127";
+serverPort = "4200";
 socket = new WebSocket("ws:" + serverAddr + ":" + serverPort);
 socket.onopen = function(e) {
   console.log(e.data);
@@ -179,10 +179,14 @@ function openDataChannel() {
     console.log("Channel closed.");
   };
 }
+
 function enterEV() {
   if (event.which == 13 || event.keyCode == 13) {
     btn_send.click();
     return false;
   }
   return true;
+}
+function saveName() {
+  myname = document.getElementById("myname").value;
 }

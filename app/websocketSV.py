@@ -51,6 +51,7 @@ async def notify_users(id):
     if USERS:  # asyncio.wait doesn't accept an empty list
         message = json.dumps({"type": "message",
                               "content": "user " + id + " has been connected"})
+        print(USERS)
         await asyncio.wait([user['socket'].send(message) for user in USERS])
 
 
@@ -67,8 +68,10 @@ async def unlogin(websocket, id):
 
 async def counter(websocket, path):
     # login(websocket) sends user_event() to websocket
-    socketID = randomString(2)
-    await login(websocket, socketID)
+    socketID = randomString(4)
+    init = await websocket.recv()
+    initData = json.loads(init)
+    await login(websocket, initData['username'])
     try:
         await websocket.send(state_event())
         async for message in websocket:
@@ -85,7 +88,5 @@ def handleRequest(data: dict):
     elif data['type'] == "answer":
         pass
     elif data['type'] == "candidate":
-        pass
-    elif data['type'] == "offer":
         pass
     return json.dumps(data)
