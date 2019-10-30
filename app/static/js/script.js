@@ -10,7 +10,7 @@ var numConnnection = 0;
 var connection = [];
 var chatBoxCss = [];
 var myname;
-var currentFriend;
+var currentConn = {};
 // set RTCPeerConnection
 
 window.RTCPeerConnection =
@@ -68,9 +68,11 @@ function handleMessage(data) {
       // username.value = data.from;
       break;
     case "offer":
-      currentFriend = data.from;
+      currentConn["name"] = data.from;
       numConnnection++;
-      gotoChat();
+
+      newChatBoxCss(data.from);
+      gotoChat(data.from);
       var peerConnection, dataChannel;
       conn = {
         id: numConnnection,
@@ -155,10 +157,12 @@ function openDataChannel(dc) {
   };
 
   dc.onmessage = function(event) {
+    currentBox = document.getElementById("box" + currentConn["name"]);
     console.log("Message received:", event.data);
-    chat.innerHTML +=
+
+    currentBox.innerHTML +=
       `<div class="message-left message"><p>` + event.data + `</p></div>`;
-    chat.scrollTop = chat.scrollHeight - chat.clientHeight;
+    currentBox.scrollTop = currentBox.scrollHeight - currentBox.clientHeight;
   };
 
   dc.onopen = function() {
@@ -172,11 +176,13 @@ function openDataChannel(dc) {
 
 function ask(name) {
   if (findConn(name)) {
-    gotoChat();
+    gotoChat(name);
+    return;
   }
   numConnnection++;
-  currentFriend = name;
-  gotoChat();
+  currentConn["name"] = name;
+  newChatBoxCss(name);
+  gotoChat(name);
   var peerConnection, dataChannel;
   conn = {
     id: numConnnection,
@@ -218,7 +224,6 @@ function ask(name) {
     }
   );
   peerConnection.ondatachannel = function(ev) {
-    console.log("dac");
     NewdataChannel = ev.channel;
     openDataChannel(NewdataChannel);
   };
@@ -244,15 +249,16 @@ function ask(name) {
 
 // chat
 btn_send.addEventListener("click", function(event) {
+  currentBox = document.getElementById("box" + currentConn["name"]);
   var val = message.value;
   if (val) {
-    chat.innerHTML +=
+    currentBox.innerHTML +=
       `<div class="message-right message"><p>` + val + `</p></div>`;
     message.value = "";
-    currentDC = findDC(currentFriend);
-    currentDC.send(val);
+    currentConn["datachannel"] = findDC(currentConn.name);
+    currentConn["datachannel"].send(val);
   }
-  chat.scrollTop = chat.scrollHeight - chat.clientHeight;
+  currentBox.scrollTop = currentBox.scrollHeight - currentBox.clientHeight;
 });
 // giao diện
 function enterEV() {
@@ -264,6 +270,7 @@ function enterEV() {
 }
 
 function backtoFront() {
+  currentConn = {};
   fp = document.getElementById("frontpage");
   ic = document.getElementById("inchat");
   if (ic.style.display !== "none") {
@@ -272,13 +279,14 @@ function backtoFront() {
   fp.style.display = "block";
   return true;
 }
-function gotoChat() {
+function gotoChat(n) {
   fp = document.getElementById("frontpage");
   ic = document.getElementById("inchat");
   if (fp.style.display !== "none") {
     fp.style.display = "none";
   }
   ic.style.display = "flex";
+  displayBoxChat(n);
   return true;
 }
 function newChatBoxCss(name) {
@@ -297,17 +305,29 @@ function newChatBoxCss(name) {
     `</h3>
   </div>
 </div>`;
-  chatBoxCss.push({ box: newDiv, li: li });
+  li.onclick = function() {
+    displayBoxChat(name);
+    console.log(name);
+  };
+  chatBoxCss.push({ box: newDiv, li: li, user: name });
   document.getElementById("list-user").appendChild(li);
   chatBoxCss.forEach(chatcss => {
     chatcss.box.style.display = "none";
+    chatcss.li.className = "";
   });
   newDiv.style.display = "block";
+  li.className = "active";
 }
 function displayBoxChat(name) {
-  boxChat.forEach(box => {
-    if (box.id == name) box.display = "block";
-    else box.display = "none";
+  currentConn["name"] = name;
+  chatBoxCss.forEach(chatcss => {
+    if (chatcss.user == name) {
+      chatcss.box.style.display = "block";
+      chatcss.li.className = "active";
+    } else {
+      chatcss.box.style.display = "none";
+      chatcss.li.className = "";
+    }
   });
 }
 function findConn(name) {
