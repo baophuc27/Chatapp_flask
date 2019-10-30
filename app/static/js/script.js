@@ -8,6 +8,7 @@ var message = document.getElementById("message"),
 
 var numConnnection = 0;
 var connection = [];
+var chatBoxCss = [];
 var myname;
 var currentFriend;
 // set RTCPeerConnection
@@ -42,7 +43,7 @@ var configuration = {
   ]
 };
 
-serverAddr = "10.20.72.51";
+serverAddr = "10.228.190.104";
 serverPort = "4200";
 socket = new WebSocket("ws:" + serverAddr + ":" + serverPort);
 socket.onopen = function(e) {};
@@ -62,7 +63,6 @@ socket.onerror = function(error) {
 function handleMessage(data) {
   switch (data.type) {
     case "message":
-      console.log(data.content);
       break;
     case "connect":
       // username.value = data.from;
@@ -99,7 +99,6 @@ function handleMessage(data) {
       peerConnection.createAnswer(
         function(answer) {
           peerConnection.setLocalDescription(answer);
-          console.log("nhan da set local");
           socket.send(
             JSON.stringify({
               type: "answer",
@@ -114,7 +113,6 @@ function handleMessage(data) {
         }
       );
       peerConnection.ondatachannel = function(ev) {
-        console.log("dac");
         NewdataChannel = ev.channel;
         openDataChannel(NewdataChannel);
       };
@@ -133,13 +131,11 @@ function handleMessage(data) {
       break;
     case "answer":
       pc = findPC(data.from);
-      console.log(pc);
       if (pc) pc.setRemoteDescription(new RTCSessionDescription(data.answer));
       break;
     case "candidate":
       pc = findPC(data.from);
       if (pc) {
-        console.log(pc, data.candidate);
         pc.addIceCandidate(new RTCIceCandidate(data.candidate)).catch(e =>
           console.error(e)
         );
@@ -175,6 +171,9 @@ function openDataChannel(dc) {
 }
 
 function ask(name) {
+  if (findConn(name)) {
+    gotoChat();
+  }
   numConnnection++;
   currentFriend = name;
   gotoChat();
@@ -282,7 +281,43 @@ function gotoChat() {
   ic.style.display = "flex";
   return true;
 }
-
+function newChatBoxCss(name) {
+  var newDiv = document.createElement("div");
+  newDiv.className = "messages-line";
+  newDiv.id = "box" + name;
+  newDiv.innerHTML = ``;
+  chat.insertBefore(newDiv, chat.firstChild);
+  var li = document.createElement("li");
+  li.id = "li" + name;
+  li.innerHTML =
+    `<div class="usr-msg-details">
+  <div class="usr-mg-info">
+    <h3>` +
+    name +
+    `</h3>
+  </div>
+</div>`;
+  chatBoxCss.push({ box: newDiv, li: li });
+  document.getElementById("list-user").appendChild(li);
+  chatBoxCss.forEach(chatcss => {
+    chatcss.box.style.display = "none";
+  });
+  newDiv.style.display = "block";
+}
+function displayBoxChat(name) {
+  boxChat.forEach(box => {
+    if (box.id == name) box.display = "block";
+    else box.display = "none";
+  });
+}
+function findConn(name) {
+  for (let i = 0; i < connection.length; i++) {
+    if (connection[i].username == name) {
+      return connection[i];
+    }
+  }
+  return null;
+}
 function findPC(name) {
   for (let i = 0; i < connection.length; i++) {
     if (connection[i].username == name) {
