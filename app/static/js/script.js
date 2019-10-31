@@ -72,15 +72,23 @@ socket.onerror = function(error) {
 function handleMessage(data) {
   switch (data.type) {
     case "reject":
+      btn = $("#li" + data.from + " button")[0];
+      btn.className = "btn btn-outline-danger";
+      btn.innerText = "Closed";
+      btn.disabled = true;
       currentBox = document.getElementById("box" + data.from);
       currentBox.innerHTML +=
         `<div class="message-left message"><p class="bg-danger text-white">` +
         data.from +
         ` rejected request</p></div>`;
+      conn = findConn(data.from);
+      conn["state"] = "reject";
       break;
     case "notify":
-      console.log;
       noti(data.message);
+      break;
+    case "onlineState":
+      console.log(data.usersOnline);
       break;
     case "connect":
       // username.value = data.from;
@@ -114,7 +122,7 @@ function handleMessage(data) {
       findConn(data.from).peerConnection.close();
       currentBox = document.getElementById("box" + data.from);
       $("#li" + data.from + " button")[0].className = "btn btn-danger";
-      $("#li" + data.from + " button")[0].innerText = "closed";
+      $("#li" + data.from + " button")[0].innerText = "Closed";
       $("#li" + data.from + " button")[0].disabled = true;
       currentBox.innerHTML +=
         `<div class="message-left message"><p class="bg-danger text-white">` +
@@ -136,18 +144,16 @@ function handleMessage(data) {
   }
 }
 
-function openDataChannel(dc) {
+function openDataChannel(dc, name) {
   dc.onerror = function(error) {
     console.log("Error on data channel:", error);
   };
 
   dc.onmessage = function(event) {
-    console.log(event.data);
     if (typeof event.data == "string") {
       data = JSON.parse(event.data);
       switch (data.type) {
         case "message":
-          console.log("Message received:", data.message);
           currentBox = document.getElementById("box" + data.name);
           currentBox.innerHTML +=
             `<div class="message-left message"><p>` +
@@ -166,7 +172,6 @@ function openDataChannel(dc) {
       currentBox = document.getElementById("box" + incomingFile.name);
       var anchor = document.createElement("a");
       anchor.href = URL.createObjectURL(event.data);
-      console.log(event.data);
       anchor.download = incomingFile.filename;
       anchor.textContent = incomingFile.filename;
       currentBox.innerHTML +=
@@ -178,15 +183,18 @@ function openDataChannel(dc) {
   };
 
   dc.onopen = function() {
-    // box = document.getElementById("box" + dc.label);
-    // box.innerHTML += `<div class="message-left message"><p class="bg-success text-white">Connection established</p></div>`;
+    box = document.getElementById("box" + name);
+    box.innerHTML += `<div class="message-left message"><p class="bg-success text-white">Connection established</p></div>`;
     console.log("Channel established.");
   };
 
   dc.onclose = function() {
-    // box = document.getElementById("box" + dc.label);
-    // console.log(dc);
-    // box.innerHTML += `<div class="message-left message"><p class="bg-success text-white">Connection closed</p></div>`;
+    box = document.getElementById("box" + name);
+    btn = $("#li" + name + " button")[0];
+    btn.className = "btn btn-outline-danger";
+    btn.innerText = "Closed";
+    btn.disabled = true;
+    box.innerHTML += `<div class="message-left message"><p class="bg-danger text-white">Connection closed</p></div>`;
     console.log("Channel closed.");
     dc.close();
   };
@@ -224,7 +232,7 @@ function ask(name) {
     connection.length - 1
   ].dataChannel = peerConnection.createDataChannel(name, dataChannelOptions);
 
-  openDataChannel(dataChannel);
+  openDataChannel(dataChannel, name);
   peerConnection.createOffer(
     function(offer) {
       socket.send(
@@ -236,23 +244,16 @@ function ask(name) {
         })
       );
       peerConnection.setLocalDescription(offer);
-      console.log("gui da set local");
     },
     function(error) {
       console.log("Error: ", error);
     }
   );
-  peerConnection.ondatachannel = function(ev) {
-    NewdataChannel = ev.channel;
-    openDataChannel(NewdataChannel);
-  };
+  // peerConnection.ondatachannel = function(ev) {
+  //   NewdataChannel = ev.channel;
+  //   openDataChannel(NewdataChannel);
+  // };
   peerConnection.onicecandidate = function(event) {
-    console.log({
-      type: "candidate",
-      from: myname,
-      username: name,
-      candidate: event.candidate
-    });
     if (event.candidate) {
       socket.send(
         JSON.stringify({
@@ -320,12 +321,14 @@ function enterEV() {
 }
 
 function backtoFront() {
+  socket.send(JSON.stringify({ type: "onlineState" }));
   isinChat = false;
   currentConn = {};
   connection.forEach((c, i, o) => {
     if (
       c.dataChannel.readyState == "closing" ||
-      c.dataChannel.readyState == "closed"
+      c.dataChannel.readyState == "closed" ||
+      c.state == "reject"
     ) {
       document.getElementById("box" + c.username).remove();
       document.getElementById("li" + c.username).remove();
@@ -373,14 +376,13 @@ function newChatBoxCss(name) {
   offButton.innerText = "Off Chat";
   offButton.onclick = function() {
     this.disabled = true;
-    offButton.innerText = "closed";
+    offButton.innerText = "Closed";
     offButton.className = "btn btn-danger";
     offChat(name);
   };
   li.appendChild(offButton);
   li.onclick = function() {
     displayBoxChat(name);
-    console.log(name);
   };
   chatBoxCss.push({ box: newDiv, li: li, user: name });
   document.getElementById("list-user").appendChild(li);
@@ -432,6 +434,8 @@ function findChatBox(name) {}
 function saveName() {
   myname = document.getElementById("myname").value;
   socket.send(JSON.stringify({ username: myname }));
+
+  socket.send(JSON.stringify({ type: "onlineState" }));
 }
 function offChat(name) {
   findDC(name).close();
@@ -526,16 +530,6 @@ function handleOffer(data) {
   peerConnection = connection[
     connection.length - 1
   ].peerConnection = new RTCPeerConnection(configuration);
-  //tạo data channel
-  var dataChannelOptions = {
-    reliable: true
-  };
-  dataChannel = connection[
-    connection.length - 1
-  ].dataChannel = peerConnection.createDataChannel(
-    data.from,
-    dataChannelOptions
-  );
 
   peerConnection.setRemoteDescription(new RTCSessionDescription(data.offer));
   peerConnection.createAnswer(
@@ -555,8 +549,8 @@ function handleOffer(data) {
     }
   );
   peerConnection.ondatachannel = function(ev) {
-    NewdataChannel = ev.channel;
-    openDataChannel(NewdataChannel);
+    connection[connection.length - 1].dataChannel = NewdataChannel = ev.channel;
+    openDataChannel(NewdataChannel, data.from);
   };
   peerConnection.onicecandidate = function(event) {
     if (event.candidate) {

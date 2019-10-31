@@ -4630,6 +4630,9 @@ a:hover {
 	padding: 10px 10px;
 	border-bottom: 2px solid darkgray;
 }
+.msg-title > button {
+	border-radius: 0;
+}
 .msg-title > h3 {
 	color: #000000;
 	font-size: 18px;
@@ -5378,7 +5381,7 @@ a:hover {
 }
 .message{
 	display: flex;
-	height: 50px;
+	min-height: 50px;
 }
 .message p{
 	font-size: 16x;
@@ -5392,7 +5395,9 @@ a:hover {
 }
 
 .message-right p{
-	background-color: whitesmoke;
+	background-color:  #51a6fbd8;
+
+	color:white;
 	width: auto;
 	float: left;
 	min-width: 10%;
@@ -5404,8 +5409,7 @@ a:hover {
 .message-left{
 }
 .message-left p{
-	background-color: #51a6fbd8;
-	color:white;
+	background-color: whitesmoke;
 	width: auto;
 	float: left;
 	min-width: 10%;
