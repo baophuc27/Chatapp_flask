@@ -1,0 +1,37 @@
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>Socket.io Example</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.4/socket.io.js"></script>
+    <link href="{{ url_for('static', filename='css/chat.css')}}" rel=" stylesheet" />
+</head>
+
+<body>
+    <h2 style="text-align: center">Chat</h2>
+    <div id="chat">
+        <div id="me">
+            <p>my ID:</p> <input id="myname" type="text" placeholder="Friend Id" />
+            <button id="save" onclick="saveName()"> save</button>
+        </div>
+        <button hidden id="login">Login</button>
+        <div id="friend">
+            <p>Friend ID:</p> <input id="friendName" type="text" placeholder="Friend Id" />
+            <button id="request"> Req</button>
+        </div>
+        <div id="chat-window">
+        </div>
+        <div class="send">
+            <input id="message" type="text" placeholder="Message" onkeypress="return enterEV(event)" />
+            <input type="file" id="sendFile" />
+            <button id="send">Send</button>
+        </div>
+    </div>
+
+
+</body>
+
+<!-- <script src="{{ url_for('static', filename='js/script.js')}}"></script> -->
+<script src="{{ url_for('static', filename='js/chat.js')}}"></script>
+
+</html>
