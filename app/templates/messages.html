@@ -34,6 +34,7 @@
 			</form>
 		</nav>
 	</header>
+
 	<div class="wrapper">
 
 		<section class="messages-page">
@@ -43,7 +44,7 @@
 						<div class="col-lg-4 col-md-12 no-pdd left">
 							<div class="msgs-list">
 								<div class="msg-title">
-									<button onclick="backtoFront()">Back</button>
+									<button class="btn btn-outline-primary" onclick="backtoFront()">Back</button>
 									<h3>Messages</h3>
 								</div>
 								<!--msg-title end-->
@@ -61,9 +62,15 @@
 								<!--messages-line end-->
 								<div class="message-send-area">
 									<div class="mf-field">
-										<input type="text" name="message" placeholder="Type a message here" id="message"
-											onkeypress="enterEV()">
-										<button id="send">Send</button>
+										<div class="input-field">
+											<input type="text" name="message" placeholder="Type a message here"
+												id="message" onkeypress="enterEV()" autocomplete="off">
+											<div class="upload-btn-wrapper">
+												<button class="btn"><span id="btn-upload">Send file</span></button>
+												<input type="file" id="File">
+											</div>
+										</div>
+										<button class="btn btn-primary" id="send">Send</button>
 									</div>
 								</div>
 								<!--message-send-area end-->

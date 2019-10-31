@@ -18,6 +18,7 @@ var btn_send = document.getElementById("send"),
 
 var peerConnection, dataChannel;
 var myname;
+var currentFile;
 // set RTCPeerConnection
 
 window.RTCPeerConnection =
