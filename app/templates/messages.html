@@ -22,8 +22,8 @@
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
 		integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-		<link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" type="text/css" rel="stylesheet">
-		<link rel="icon" href="{{ url_for('static', filename='img/banner.png')}}">
+	<link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" type="text/css" rel="stylesheet">
+	<link rel="icon" href="{{ url_for('static', filename='img/banner.png')}}">
 </head>
 
 
@@ -51,7 +51,7 @@
 		</div>
 	</header>
 	<div id="alert"></div>
-	
+
 	<div class="wrapper">
 
 		<section class="messages-page">
@@ -61,16 +61,16 @@
 						<div class="col-lg-4 col-md-12 no-pdd left">
 							<div class="msgs-list">
 								<div class="msg-title">
-									<button onclick="backtoFront()">Back</button>
+									<button class="btn btn-outline-primary" onclick="backtoFront()">Back</button>
 									<h3>Messages</h3>
 								</div>
 								<!--msg-title end-->
 								<div class="messages-list">
-									<ul>
+									<ul id="list-user">
 										<li class="active">
 											<div class="usr-msg-details">
 												<div class="usr-ms-img">
-													<a href={{ session['user'].avatar}}></a>
+													<a href={{ session['user'].avatar }}></a>
 													<span class="msg-status"></span>
 												</div>
 												<div class="usr-mg-info">
@@ -99,26 +99,20 @@
 							<!--msgs-list end-->
 						</div>
 						<div class="col-lg-8 col-md-12 pd-right-none pd-left-none right">
-							<div class="main-conversation-box">
-								<div class="messages-line" id="chat">
-									<div class="message-right message">
-										<p>
-											abcddef
-										</p>
-									</div>
-									<div class="message-left message">
-										<p>
-											abcddef
-										</p>
-									</div>
+							<div class="main-conversation-box" id="chat">
 
-								</div>
 								<!--messages-line end-->
 								<div class="message-send-area">
 									<div class="mf-field">
-										<input type="text" name="message" placeholder="Type a message here" id="message"
-											onkeypress="enterEV()">
-										<button id="send">Send</button>
+										<div class="input-field">
+											<input type="text" name="message" placeholder="Type a message here"
+												id="message" onkeypress="enterEV()" autocomplete="off">
+											<div class="upload-btn-wrapper">
+												<button class="btn"><span id="btn-upload">Send file</span></button>
+												<input type="file" id="File">
+											</div>
+										</div>
+										<button class="btn btn-primary" id="send">Send</button>
 									</div>
 								</div>
 								<!--message-send-area end-->
@@ -129,7 +123,7 @@
 					<div class=" row" id="frontpage">
 						<div class="friend-info">
 							<div class="row">
-									{% for x in contactList(session['user'].name) %}
+								{% for x in contactList(session['user'].name) %}
 								<div class="col-lg-4">
 									<div class="card-deck">
 										<div class="card">
@@ -168,7 +162,7 @@
 				if ($('#search-input').val() != "") {
 					$.ajax({
 						dataType: "json",
-						url: "/search?search-input=" + $('#search-input').val()+"&myname="+myUserName,
+						url: "/search?search-input=" + $('#search-input').val() + "&myname=" + myUserName,
 						success: function (data) {
 							for (var i = 0; i < data.length; i++) {
 								html += '<div id="searchUser' + data[i].name + '\"><span>' + data[i].name + '</span> <button class="btn btn-outline-success my-2 my-sm-0"  id="addBtn' + data[i].name + '\" onclick=\"add(\'' + myUserName + "\',\'" + data[i].name + '\')\">Add</button></div>\n'
@@ -191,11 +185,11 @@
 				dataType: "json",
 				url: "/addContact?name=" + myname + "&cname=" + cname,
 				success: function (data) {
-					$('div#searchUser'+data.cname).remove();
-					var ale="Bạn vừa thêm <strong>"+data.cname+"</strong> vào danh sách liên lạc!!!";
+					$('div#searchUser' + data.cname).remove();
+					var ale = "Bạn vừa thêm <strong>" + data.cname + "</strong> vào danh sách liên lạc!!!";
 					$('#alert').html(ale);
 					$('#alert').addClass("alert alert-success");
-					$("#alert").delay(2000).slideUp(500, function() {
+					$("#alert").delay(2000).slideUp(500, function () {
 						$(this).html("");
 						$(this).removeClass("alert alert-success");
 						document.getElementById("alert").style.display = "block";

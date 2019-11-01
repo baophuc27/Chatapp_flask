@@ -18,6 +18,7 @@ var btn_send = document.getElementById("send"),
 
 var peerConnection, dataChannel;
 var myname;
+var currentFile;
 // set RTCPeerConnection
 
 window.RTCPeerConnection =
@@ -57,7 +58,7 @@ peerConnection.ondatachannel = function(ev) {
   dataChannel = ev.channel;
   openDataChannel();
 };
-serverAddr = "10.20.72.51";
+serverAddr = "10.228.190.104";
 serverPort = "4200";
 socket = new WebSocket("ws:" + serverAddr + ":" + serverPort);
 socket.onopen = function(e) {};
