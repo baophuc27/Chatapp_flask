@@ -1,56 +1,70 @@
-
 <!DOCTYPE html>
 <html>
 
 <!-- Mirrored from gambolthemes.net/workwise_demo/HTML/messages.html by HTTrack Website Copier/3.x [XR&CO'2014], Sun, 28 Apr 2019 14:19:42 GMT -->
-<head>
-<meta charset="UTF-8">
-<title>Chat MMT</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="" />
-<meta name="keywords" content="" />
-<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/animate.css')}}">
-<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/bootstrap.min.css')}}">
-<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/line-awesome.css')}}">
-<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/line-awesome-font-awesome.min.css')}}">
-<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/font-awesome.min.css"')}}'>
-<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/jquery.mCustom mScrollbar.min.css')}}">
-<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style.css')}}">
-<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/responsive.css')}}">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
+<head>
+	<meta charset="UTF-8">
+	<title>Chat MMT</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta name="description" content="" />
+	<meta name="keywords" content="" />
+	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/animate.css')}}">
+	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/bootstrap.min.css')}}">
+	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/line-awesome.css')}}">
+	<link rel="stylesheet" type="text/css"
+		href="{{ url_for('static', filename='css/line-awesome-font-awesome.min.css')}}">
+	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/font-awesome.min.css"')}}'>
+	<link rel=" stylesheet" type="text/css"
+		href="{{ url_for('static', filename='css/jquery.mCustom mScrollbar.min.css')}}">
+	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style.css')}}">
+	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/responsive.css')}}">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+		integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+		<link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" type="text/css" rel="stylesheet">
+		<link rel="icon" href="{{ url_for('static', filename='img/banner.png')}}">
 </head>
 
 
 <body>
 	<header>
-	<nav class="navbar navbar-expand-lg navbar-light bg-light">
-	  
-		  <form class="form-inline my-2 my-lg-0" action="/search">
-			<input class="form-control mr-sm-2" type="search" id="search-input" name="search-input" placeholder="Search" aria-label="Search">
-			<button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
-			{% for user_data in search_data %}
-			<td>{{ user_data.name }}</td>
+		<nav class="navbar navbar-expand-lg navbar-light bg-light">
+			<!-- <form class="form-inline my-2 my-lg-0" action="/search"></form> -->
+			<div class="dropdown">
+				<input class="form-control mr-sm-2" type="search" placeholder="Search user name..." id="search-input"
+					name="search-input" autocomplete="off">
+				<div class="dropdown-menu-search" id="dropdown-menu-search"></div>
+				<!-- <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button> -->
+			</div>
+			<!-- </form> -->
+			<div class="clearfix">
+				<a href="/logout" class="btn btn-info btn-sm float-xl-right pull-right">
+					<span class="glyphicon glyphicon-log-out"></span> Log out
+				</a>
+			</div>
+		</nav>
+		<div class="menu-item">
+			{% for user in json_data %}
+			<a href="#" class="btn btn-primary" onclick="ask('myna0')">{{user.name}}</a>
 			{% endfor %}
-		  </form>
-		  </select>
-	  </nav>
-</header>
+		</div>
+	</header>
+	<div id="alert"></div>
+	
 	<div class="wrapper">
-		
+
 		<section class="messages-page">
 			<div class="container">
 				<div class="messages-sec">
-					<div class="row">
-						<div class="col-lg-4 col-md-12 no-pdd">
+					<div class="row" id="inchat">
+						<div class="col-lg-4 col-md-12 no-pdd left">
 							<div class="msgs-list">
 								<div class="msg-title">
+									<button onclick="backtoFront()">Back</button>
 									<h3>Messages</h3>
-									<ul>
-										<li><a href="#" title=""><i class="fa fa-cog"></i></a></li>
-										<li><a href="#" title=""><i class="fa fa-ellipsis-v"></i></a></li>
-									</ul>
-								</div><!--msg-title end-->
+								</div>
+								<!--msg-title end-->
 								<div class="messages-list">
 									<ul>
 										<li class="active">
@@ -61,247 +75,136 @@
 												</div>
 												<div class="usr-mg-info">
 													<h3>John</h3>
-													<p>Lorem ipsum dolor <img src="images/smley.png" alt=""></p>
-												</div><!--usr-mg-info end-->
-												<span class="posted_time">1:55 PM</span>
-												<span class="msg-notifc">1</span>
-											</div><!--usr-msg-details end-->
+												</div>
+											</div>
+											<!--usr-msg-details end-->
 										</li>
 										<li>
 											<div class="usr-msg-details">
 												<div class="usr-ms-img">
 													<img src={{ session['user'].avatar }} alt="">
 													<p>Alooo</p>
-													<p>{{ session['user'].name }}</p>
 												</div>
 												<div class="usr-mg-info">
 													<h3>David Vane</h3>
-													<p>Vestibulum ac diam..</p>
-												</div><!--usr-mg-info end-->
-												<span class="posted_time">1:55 PM</span>
-											</div><!--usr-msg-details end-->
-										</li>
-										<li>
-											<div class="usr-msg-details">
-												<div class="usr-ms-img">
-													<img src="images/resources/m-img3.png" alt="">
 												</div>
-												<div class="usr-mg-info">
-													<h3>Nancy Dilan</h3>
-													<p>Quam vehicula.</p>
-												</div><!--usr-mg-info end-->
-												<span class="posted_time">1:55 PM</span>
-											</div><!--usr-msg-details end-->
-										</li>
-										<li>
-											<div class="usr-msg-details">
-												<div class="usr-ms-img">
-													<img src="images/resources/m-img4.png" alt="">
-													<span class="msg-status"></span>
-												</div>
-												<div class="usr-mg-info">
-													<h3>Norman Kenney</h3>
-													<p>Nulla quis lorem ut..</p>
-												</div><!--usr-mg-info end-->
-												<span class="posted_time">1:55 PM</span>
-											</div><!--usr-msg-details end-->
-										</li>
-										<li>
-											<div class="usr-msg-details">
-												<div class="usr-ms-img">
-													<img src="images/resources/m-img5.png" alt="">
-													<span class="msg-status"></span>
-												</div>
-												<div class="usr-mg-info">
-													<h3>James Dilan</h3>
-													<p>Vivamus magna just..</p>
-												</div><!--usr-mg-info end-->
-												<span class="posted_time">1:55 PM</span>
-											</div><!--usr-msg-details end-->
-										</li>
-										<li>
-											<div class="usr-msg-details">
-												<div class="usr-ms-img">
-													<img src="images/resources/m-img6.png" alt="">
-												</div>
-												<div class="usr-mg-info">
-													<h3>Mike Dorn</h3>
-													<p>Praesent sapien massa.</p>
-												</div><!--usr-mg-info end-->
-												<span class="posted_time">1:55 PM</span>
-											</div><!--usr-msg-details end-->
-										</li>
-										<li>
-											<div class="usr-msg-details">
-												<div class="usr-ms-img">
-													<img src="images/resources/m-img7.png" alt="">
-												</div>
-												<div class="usr-mg-info">
-													<h3>Patrick Morison</h3>
-													<p>Convallis a pellente...</p>
-												</div><!--usr-mg-info end-->
-												<span class="posted_time">1:55 PM</span>
-											</div><!--usr-msg-details end-->
+												<!--usr-mg-info end-->
+											</div>
+											<!--usr-msg-details end-->
 										</li>
 									</ul>
-								</div><!--messages-list end-->
-							</div><!--msgs-list end-->
+								</div>
+								<!--messages-list end-->
+							</div>
+							<!--msgs-list end-->
 						</div>
-						<div class="col-lg-8 col-md-12 pd-right-none pd-left-none">
+						<div class="col-lg-8 col-md-12 pd-right-none pd-left-none right">
 							<div class="main-conversation-box">
-								<div class="message-bar-head">
-									<div class="usr-msg-details">
-										<div class="usr-ms-img">
-											<img src="images/resources/m-img1.png" alt="">
-										</div>
-										<div class="usr-mg-info">
-											<h3>{{session['user'].name}}</h3>
-											<img src="https://i.imgur.com/jUmCAZj.jpg" alt="" height="50">
-										</div><!--usr-mg-info end-->
+								<div class="messages-line" id="chat">
+									<div class="message-right message">
+										<p>
+											abcddef
+										</p>
 									</div>
-									<a href="#" title=""><i class="fa fa-ellipsis-v"></i></a>
-								</div><!--message-bar-head end-->
-								<div class="messages-line">
-									<div class="main-message-box">
-										<div class="messg-usr-img">
-											<img src="images/resources/m-img1.png" alt="">
-										</div><!--messg-usr-img end-->
-										<div class="message-dt">
-											<div class="message-inner-dt img-bx">
-												<img src="images/resources/mt-img1.png" alt="">
-												<img src="images/resources/mt-img2.png" alt="">
-												<img src="images/resources/mt-img3.png" alt="">
-											</div><!--message-inner-dt end-->
-											<span>Sat, Aug 23, 1:08 PM</span>
-										</div><!--message-dt end-->
-									</div><!--main-message-box end-->
-									<div class="main-message-box ta-right">
-										<div class="message-dt">
-											<div class="message-inner-dt">
-												<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec rutrum congue leo eget malesuada. Vivamus suscipit tortor eget felis porttitor.</p>
-											</div><!--message-inner-dt end-->
-											<span>Sat, Aug 23, 1:08 PM</span>
-										</div><!--message-dt end-->
-										<div class="messg-usr-img">
-											<img src="images/resources/m-img2.png" alt="">
-										</div><!--messg-usr-img end-->
-									</div><!--main-message-box end-->
-									<div class="main-message-box st3">
-										<div class="message-dt st3">
-											<div class="message-inner-dt">
-												<p>Cras ultricies ligula.<img src="images/smley.png" alt=""></p>
-											</div><!--message-inner-dt end-->
-											<span>5 minutes ago</span>
-										</div><!--message-dt end-->
-										<div class="messg-usr-img">
-											<img src="images/resources/m-img1.png" alt="">
-										</div><!--messg-usr-img end-->
-									</div><!--main-message-box end-->
-									<div class="main-message-box ta-right">
-										<div class="message-dt">
-											<div class="message-inner-dt">
-												<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec rutrum congue leo eget malesuada. Vivamus suscipit tortor eget felis porttitor.</p>
-											</div><!--message-inner-dt end-->
-											<span>Sat, Aug 23, 1:08 PM</span>
-										</div><!--message-dt end-->
-										<div class="messg-usr-img">
-											<img src="images/resources/m-img2.png" alt="">
-										</div><!--messg-usr-img end-->
-									</div><!--main-message-box end-->
-									<div class="main-message-box st3">
-										<div class="message-dt st3">
-											<div class="message-inner-dt">
-												<p>....</p>
-											</div><!--message-inner-dt end-->
-											<span>Typing...</span>
-										</div><!--message-dt end-->
-										<div class="messg-usr-img">
-											<img src="images/resources/m-img1.png" alt="">
-										</div><!--messg-usr-img end-->
-									</div><!--main-message-box end-->
-									<div class="main-message-box ta-right">
-										<div class="message-dt">
-											<div class="message-inner-dt">
-												<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec rutrum congue leo eget malesuada. Vivamus suscipit tortor eget felis porttitor.</p>
-											</div><!--message-inner-dt end-->
-											<span>Sat, Aug 23, 1:08 PM</span>
-										</div><!--message-dt end-->
-										<div class="messg-usr-img">
-											<img src="images/resources/m-img2.png" alt="">
-										</div><!--messg-usr-img end-->
-									</div><!--main-message-box end-->
-									<div class="main-message-box st3">
-										<div class="message-dt st3">
-											<div class="message-inner-dt">
-												<p>....</p>
-											</div><!--message-inner-dt end-->
-											<span>Typing...</span>
-										</div><!--message-dt end-->
-										<div class="messg-usr-img">
-											<img src="images/resources/m-img1.png" alt="">
-										</div><!--messg-usr-img end-->
-									</div><!--main-message-box end-->
-								</div><!--messages-line end-->
+									<div class="message-left message">
+										<p>
+											abcddef
+										</p>
+									</div>
+
+								</div>
+								<!--messages-line end-->
 								<div class="message-send-area">
-									<form>
-										<div class="mf-field">
-											<input type="text" name="message" placeholder="Type a message here">
-											<button type="submit">Send</button>
-										</div>
-										<ul>
-											<li><a href="#" title=""><i class="fa fa-smile-o"></i></a></li>
-											<li><a href="#" title=""><i class="fa fa-camera"></i></a></li>
-											<li><a href="#" title=""><i class="fa fa-paperclip"></i></a></li>
-										</ul>
-									</form>
-								</div><!--message-send-area end-->
-							</div><!--main-conversation-box end-->
+									<div class="mf-field">
+										<input type="text" name="message" placeholder="Type a message here" id="message"
+											onkeypress="enterEV()">
+										<button id="send">Send</button>
+									</div>
+								</div>
+								<!--message-send-area end-->
+							</div>
+							<!--main-conversation-box end-->
 						</div>
 					</div>
-				</div><!--messages-sec end-->
-			</div>
-		</section><!--messages-page end-->
-
-
-
-		<!-- <footer>
-			<div class="footy-sec mn no-margin">
-				<div class="container">
-					<ul>
-						<li><a href="#" title="">Help Center</a></li>
-						<li><a href="#" title="">Privacy Policy</a></li>
-						<li><a href="#" title="">Community Guidelines</a></li>
-						<li><a href="#" title="">Cookies Policy</a></li>
-						<li><a href="#" title="">Career</a></li>
-						<li><a href="#" title="">Forum</a></li>
-						<li><a href="#" title="">Language</a></li>
-						<li><a href="#" title="">Copyright Policy</a></li>
-					</ul>
-					<p><img src="images/copy-icon2.png" alt="">Copyright 2017</p>
-					<img class="fl-rgt" src="images/logo2.png" alt="">
+					<div class=" row" id="frontpage">
+						<div class="friend-info">
+							<div class="row">
+									{% for x in contactList(session['user'].name) %}
+								<div class="col-lg-4">
+									<div class="card-deck">
+										<div class="card">
+											<div class="card-body">
+												<h3 class="card-title">{{ x.name }}</h3>
+												<div class="usr-ms-img">
+													<img src="images/resources/m-img2.png" alt="">
+												</div>
+												<div class="usr-mg-info">
+													<img src="https://i.imgur.com/jUmCAZj.jpg" alt="" height="50">
+												</div>
+												<!--usr-mg-info end-->
+												<a href="#" class="btn btn-primary" onclick="ask('{{x.name}}')">Chat</a>
+											</div>
+										</div>
+									</div>
+								</div>
+								{% endfor %}
+							</div>
+						</div>
+					</div>
 				</div>
+				<!--messages-sec end-->
 			</div>
-		</footer> -->
+		</section>
+	</div>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+	<script src="{{ url_for('static', filename='js/script.js')}}"></script>
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+	<script>
+		$(document).ready(function () {
+			var html = "";
+			var url = window.location.href;
+			var myUserName = url.split('=')[1]
+			$('#search-input').keyup(function () {
+				if ($('#search-input').val() != "") {
+					$.ajax({
+						dataType: "json",
+						url: "/search?search-input=" + $('#search-input').val()+"&myname="+myUserName,
+						success: function (data) {
+							for (var i = 0; i < data.length; i++) {
+								html += '<div id="searchUser' + data[i].name + '\"><span>' + data[i].name + '</span> <button class="btn btn-outline-success my-2 my-sm-0"  id="addBtn' + data[i].name + '\" onclick=\"add(\'' + myUserName + "\',\'" + data[i].name + '\')\">Add</button></div>\n'
+							}
+							$('#dropdown-menu-search div').remove();
+							$('dropdown-menu-search').html("");
+							$("#dropdown-menu-search").append(html);
+							html = "";
 
-	</div><!--theme-layout end-->
-
-
-
-<script type="text/javascript" src="js/jquery.min.js"></script>
-<script type="text/javascript" src="js/popper.js"></script>
-<script type="text/javascript" src="js/bootstrap.min.js"></script>
-<script type="text/javascript" src="js/jquery.mCustomScrollbar.js"></script>
-<script type="text/javascript" src="lib/slick/slick.min.js"></script>
-<script type="text/javascript" src="js/scrollbar.js"></script>
-<script type="text/javascript" src="js/script.js"></script>
-<script>
-	$(document).ready(function(){
-		$('#search-input').keyup(function(){
-			$(#)
-		})
-	})
-</script>
+						}
+					});
+				}
+				else {
+					$('#dropdown-menu-search div').remove();
+				}
+			});
+		});
+		function add(myname, cname) {
+			$.ajax({
+				dataType: "json",
+				url: "/addContact?name=" + myname + "&cname=" + cname,
+				success: function (data) {
+					$('div#searchUser'+data.cname).remove();
+					var ale="Bạn vừa thêm <strong>"+data.cname+"</strong> vào danh sách liên lạc!!!";
+					$('#alert').html(ale);
+					$('#alert').addClass("alert alert-success");
+					$("#alert").delay(2000).slideUp(500, function() {
+						$(this).html("");
+						$(this).removeClass("alert alert-success");
+						document.getElementById("alert").style.display = "block";
+					});
+				}
+			});
+		}
+	</script>
 </body>
 
-<!-- Mirrored from gambolthemes.net/workwise_demo/HTML/messages.html by HTTrack Website Copier/3.x [XR&CO'2014], Sun, 28 Apr 2019 14:19:48 GMT -->
+
 </html>

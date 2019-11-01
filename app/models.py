@@ -62,9 +62,9 @@ def getId(name):
         con.close()
     return id[0]
 
-def searchUser(name):
+def searchUser(name,myname):
     splitName="%"+'%'.join(x for x in name)+"%"
-    query="SELECT id,name,avatar FROM USERS WHERE USERS.name LIKE \""+splitName+"\";"
+    query="SELECT id,name,avatar FROM USERS WHERE USERS.name like \""+splitName+"\" AND name != \""+myname+"\" EXCEPT SELECT DISTINCT USERS.id,USERS.name,USERS.avatar from CONTACTS JOIN USERS on CONTACTS.cname=USERS.name WHERE CONTACTS.myname=\""+myname+"\""
     res=dict()
     try:
         with sqlite3.connect(user_database) as con:
@@ -86,3 +86,54 @@ def searchUser(name):
     Dict={'id':idList,'name':nameList,'avatar':avatarList}
     resDict=[{'id':i,'name':n,'avatar':a} for i,n,a in zip(Dict['id'],Dict['name'],Dict['avatar'])]
     return resDict
+
+def addContact(myname,cname):
+    query="INSERT INTO CONTACTS(myname,cname) VALUES(\""+myname +"\",\""+cname+"\");"
+    try:
+        with sqlite3.connect(user_database) as con:
+            cur=con.cursor()
+            cur.execute(query)
+            con.commit()
+    except:
+        con.rollback()
+    finally:
+        con.close()
+
+def listContact(name):
+    query="SELECT DISTINCT USERS.id,name,avatar FROM USERS JOIN CONTACTS ON USERS.name=CONTACTS.cname AND CONTACTS.myname=\'"+name+"\';"
+    try:
+        with sqlite3.connect(user_database) as con:
+            cur=con.cursor()
+            cur.execute(query)
+            con.commit()
+            res=cur.fetchall()
+    except:
+        con.rollback()
+    finally:
+        con.close()
+    idList=list()
+    nameList=list()
+    avatarList=list()
+    for i in res:
+        idList+=[i[0]]
+        nameList+=[i[1]]
+        avatarList+=[i[2]]
+    Dict={'id':idList,'name':nameList,'avatar':avatarList}
+    resDict=[{'id':i,'name':n,'avatar':a} for i,n,a in zip(Dict['id'],Dict['name'],Dict['avatar'])]
+    return resDict
+
+def checkUserName(name):
+    query="SELECT * FROM USERS WHERE name=\""+name+"\";"
+    try:
+        with sqlite3.connect(user_database) as con:
+            cur=con.cursor()
+            cur.execute(query)         
+            con.commit()
+    except:
+        con.rollback()
+    finally:
+        con.close
+    if cur.fetchone():
+        return True
+    else: 
+        return False

@@ -4,6 +4,7 @@
     <meta charset="utf-8">
     <title>Socket.io Example</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.4/socket.io.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <link href="{{ url_for('static', filename='css/chat.css')}}" rel=" stylesheet" />
 </head>
 
@@ -11,8 +12,8 @@
     <h2 style="text-align: center">Chat</h2>
     <div id="chat">
         <div id="me">
-            <p id="myID">User ID:</p>
-            <p id="userName"></p>
+            <p>my ID:</p> <input id="myname" type="text" placeholder="Friend Id" />
+            <button id="save" onclick="saveName()"> save</button>
         </div>
         <button hidden id="login">Login</button>
         <div id="friend">
@@ -23,12 +24,15 @@
         </div>
         <div class="send">
             <input id="message" type="text" placeholder="Message" onkeypress="return enterEV(event)" />
+            <input type="file" id="sendFile" />
             <button id="send">Send</button>
         </div>
     </div>
 
 
 </body>
+
+<!-- <script src="{{ url_for('static', filename='js/script.js')}}"></script> -->
 <script src="{{ url_for('static', filename='js/chat.js')}}"></script>
 
 </html>

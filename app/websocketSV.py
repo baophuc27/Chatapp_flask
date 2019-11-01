@@ -14,7 +14,7 @@ def startWS():
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
     logging.basicConfig()
-    port = 4000
+    port = 4200
     start_server = websockets.serve(counter, addr, port)
     print("websocket server's running on "+str(addr)+":"+str(port))
     asyncio.get_event_loop().run_until_complete(start_server)
@@ -51,41 +51,41 @@ async def notify_users(id):
     if USERS:  # asyncio.wait doesn't accept an empty list
         message = json.dumps({"type": "message",
                               "content": "user " + id + " has been connected"})
+        print(USERS)
         await asyncio.wait([user['socket'].send(message) for user in USERS])
 
 
 async def login(websocket, id):
     USERS.append({"socketID": id, "socket": websocket})
     await websocket.send(json.dumps({"type": "connect", "id": id}))
-    await notify_users(id)
+    if USERS:
+        message = json.dumps({"type": "message",
+                              "content": "user " + id + " has been connected"})
+        print(USERS)
+        await asyncio.wait([user['socket'].send(message) for user in USERS])
 
 
 async def unlogin(websocket, id):
     USERS.remove({"socketID": id, "socket": websocket})
-    await notify_users(id)
+    if USERS:
+        message = json.dumps({"type": "message",
+                              "content": "user " + id + " has been disconnected"})
+        print(USERS)
+        await asyncio.wait([user['socket'].send(message) for user in USERS])
 
 
 async def counter(websocket, path):
     # login(websocket) sends user_event() to websocket
-    socketID = randomString(2)
-    await login(websocket, socketID)
+    socketID = randomString(4)
+    init = await websocket.recv()
+    initData = json.loads(init)
+    await login(websocket, initData['username'])
     try:
         await websocket.send(state_event())
         async for message in websocket:
             data = json.loads(message)
+            print(message)
             sk = findClient(data['username'], USERS)
             await sk.send(message)
     finally:
-        await unlogin(websocket, socketID)
-
-
-def handleRequest(data: dict):
-    if data['type'] == "offer":
-        pass
-    elif data['type'] == "answer":
-        pass
-    elif data['type'] == "candidate":
-        pass
-    elif data['type'] == "offer":
-        pass
-    return json.dumps(data)
+        await unlogin(websocket, initData['username'])
