@@ -51,7 +51,7 @@ var configuration = {
   ]
 };
 
-var serverAddr = "10.228.190.104";
+var serverAddr = "10.20.72.51";
 var serverPort = "4200";
 var socket = null;
 
