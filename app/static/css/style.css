@@ -393,6 +393,8 @@ nav {
 	width: 100%;
 	text-align: right;
 	padding-right: 13px;
+	display: flex;
+    justify-content: space-between;
 }
 .navbar-brand{
 	cursor: pointer;
@@ -5441,6 +5443,8 @@ a:hover {
     z-index: 1;
 }
 .dropdown-menu-search div{
+	justify-content: space-between;
+	align-items: center;
 	text-align: left;
     color:black;
     padding: 12px 16px;
@@ -5588,4 +5592,11 @@ body {
 .link {
   padding: 5px 10px;
   cursor: pointer
+}
+.card .card-body{
+	display: flex;
+    justify-content: space-between;
+	align-items: center;
+	height: 120px;
+	text-align: center;
 }

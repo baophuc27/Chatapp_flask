@@ -1,6 +1,4 @@
 var username = document.getElementById("myname");
-//   btn_login = document.getElementById("login"),
-// friend = document.getElementById("friendName"),
 var message = document.getElementById("message"),
   btn_send = document.getElementById("send"),
   chat = document.getElementById("chat"),
@@ -12,14 +10,15 @@ file.onchange = function() {
   currentFile = this.files[0];
   btn_upload.innerText = currentFile.name;
 };
-//   feedback = document.getElementById("feedback");
-
 var numConnnection = 0;
 var connection = [];
 var chatBoxCss = [];
-var myname;
+
 var currentConn = {};
 var isinChat = false;
+
+var url = window.location.href;
+var myname = url.split("=")[1];
 // set RTCPeerConnection
 
 window.RTCPeerConnection =
@@ -52,22 +51,9 @@ var configuration = {
   ]
 };
 
-serverAddr = "10.228.190.104";
-serverPort = "4200";
-socket = new WebSocket("ws:" + serverAddr + ":" + serverPort);
-socket.onopen = function(e) {};
-socket.onmessage = function(event) {
-  handleMessage(JSON.parse(event.data));
-};
-socket.onclose = function(event) {
-  if (event.wasClean) {
-  } else {
-    console.log("close");
-  }
-};
-socket.onerror = function(error) {
-  alert(`[error] ${error.message}`);
-};
+var serverAddr = "10.228.190.104";
+var serverPort = "4200";
+var socket = null;
 
 function handleMessage(data) {
   switch (data.type) {
@@ -86,9 +72,27 @@ function handleMessage(data) {
       break;
     case "notify":
       noti(data.message);
+      if (data.status == "online") {
+        $("#button" + data.username)[0].className = "btn btn-primary";
+        $("#button" + data.username)[0].disabled = false;
+      } else if (data.status == "offline") {
+        $("#button" + data.username)[0].className = "btn btn-dark";
+        $("#button" + data.username)[0].disabled = true;
+      }
       break;
     case "onlineState":
       console.log(data.usersOnline);
+      $(".card .usr-mg-info h3")
+        .toArray()
+        .forEach(v => {
+          if (!data.usersOnline.includes(v.innerText)) {
+            $("#button" + v.innerText)[0].className = "btn btn-dark";
+            $("#button" + v.innerText)[0].disabled = true;
+          } else {
+            $("#button" + v.innerText)[0].className = "btn btn-primary";
+            $("#button" + v.innerText)[0].disabled = false;
+          }
+        });
       break;
     case "connect":
       // username.value = data.from;
@@ -430,13 +434,29 @@ function findDC(name) {
   }
   return null;
 }
-function findChatBox(name) {}
-function saveName() {
-  myname = document.getElementById("myname").value;
-  socket.send(JSON.stringify({ username: myname }));
-
-  socket.send(JSON.stringify({ type: "onlineState" }));
-}
+$(document).ready(function() {
+  url = window.location.href;
+  myname = url.split("=")[1];
+  console.log(myname);
+  socket = new WebSocket("ws:" + serverAddr + ":" + serverPort);
+  socket.onopen = function(e) {
+    socket.send(JSON.stringify({ username: myname }));
+    socket.send(JSON.stringify({ type: "onlineState" }));
+  };
+  socket.onmessage = function(event) {
+    handleMessage(JSON.parse(event.data));
+  };
+  socket.onclose = function(event) {
+    if (event.wasClean) {
+    } else {
+      console.log("close");
+    }
+  };
+  socket.onerror = function(error) {
+    alert(`[error] ${error.message}`);
+  };
+  console.log(socket);
+});
 function offChat(name) {
   findDC(name).close();
   findPC(name).close();

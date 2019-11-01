@@ -61,7 +61,8 @@ async def login(websocket, id):
     if USERS:
         message = json.dumps({"type": "notify",
                               "message": "user " + id + " has been connected",
-                              "username": id})
+                              "username": id,
+                              "status": "online"})
         print(USERS)
         await asyncio.wait([user['socket'].send(message) for user in USERS])
 
@@ -70,7 +71,8 @@ async def unlogin(websocket, id):
     USERS.remove({"socketID": id, "socket": websocket})
     if USERS:
         message = json.dumps({"type": "notify",
-                              "message": "user " + id + " has been disconnected", "username": id})
+                              "message": "user " + id + " has been disconnected", "username": id,
+                              "status": "offline"})
         print(USERS)
         await asyncio.wait([user['socket'].send(message) for user in USERS])
 

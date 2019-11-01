@@ -14,22 +14,21 @@
 	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/line-awesome.css')}}">
 	<link rel="stylesheet" type="text/css"
 		href="{{ url_for('static', filename='css/line-awesome-font-awesome.min.css')}}">
-	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/font-awesome.min.css"')}}'>
+	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/font-awesome.min.css')}}">
 	<link rel=" stylesheet" type="text/css"
 		href="{{ url_for('static', filename='css/jquery.mCustom mScrollbar.min.css')}}">
 	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style.css')}}">
 	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/responsive.css')}}">
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
-		integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-	<link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" type="text/css" rel="stylesheet">
+	<!-- <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+		integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous"> -->
 	<link rel="icon" href="{{ url_for('static', filename='img/banner.png')}}">
 </head>
 
 
 <body>
 	<header>
-		<nav class="navbar navbar-expand-lg navbar-light bg-light">
+		<nav class="navbar navbar-light bg-light">
 			<!-- <form class="form-inline my-2 my-lg-0" action="/search"></form> -->
 			<div class="dropdown">
 				<input class="form-control mr-sm-2" type="search" placeholder="Search user name..." id="search-input"
@@ -44,11 +43,6 @@
 				</a>
 			</div>
 		</nav>
-		<div class="menu-item">
-			{% for user in json_data %}
-			<a href="#" class="btn btn-primary" onclick="ask('myna0')">{{user.name}}</a>
-			{% endfor %}
-		</div>
 	</header>
 	<div id="alert"></div>
 
@@ -67,31 +61,6 @@
 								<!--msg-title end-->
 								<div class="messages-list">
 									<ul id="list-user">
-										<li class="active">
-											<div class="usr-msg-details">
-												<div class="usr-ms-img">
-													<a href={{ session['user'].avatar }}></a>
-													<span class="msg-status"></span>
-												</div>
-												<div class="usr-mg-info">
-													<h3>John</h3>
-												</div>
-											</div>
-											<!--usr-msg-details end-->
-										</li>
-										<li>
-											<div class="usr-msg-details">
-												<div class="usr-ms-img">
-													<img src={{ session['user'].avatar }} alt="">
-													<p>Alooo</p>
-												</div>
-												<div class="usr-mg-info">
-													<h3>David Vane</h3>
-												</div>
-												<!--usr-mg-info end-->
-											</div>
-											<!--usr-msg-details end-->
-										</li>
 									</ul>
 								</div>
 								<!--messages-list end-->
@@ -128,15 +97,13 @@
 									<div class="card-deck">
 										<div class="card">
 											<div class="card-body">
-												<h3 class="card-title">{{ x.name }}</h3>
-												<div class="usr-ms-img">
-													<img src="images/resources/m-img2.png" alt="">
-												</div>
 												<div class="usr-mg-info">
 													<img src="https://i.imgur.com/jUmCAZj.jpg" alt="" height="50">
+													<h3 class="card-title">{{ x.name }}</h3>
 												</div>
 												<!--usr-mg-info end-->
-												<a href="#" class="btn btn-primary" onclick="ask('{{x.name}}')">Chat</a>
+												<button href="#" class="btn btn-primary" id="button{{x.name}}"
+													onclick="ask('{{x.name}}')">Chat</button>
 											</div>
 										</div>
 									</div>
@@ -151,13 +118,13 @@
 		</section>
 	</div>
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-	<script src="{{ url_for('static', filename='js/script.js')}}"></script>
+
 	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
 	<script>
 		$(document).ready(function () {
 			var html = "";
 			var url = window.location.href;
-			var myUserName = url.split('=')[1]
+			var myUserName = url.split('=')[1];
 			$('#search-input').keyup(function () {
 				if ($('#search-input').val() != "") {
 					$.ajax({
@@ -165,7 +132,7 @@
 						url: "/search?search-input=" + $('#search-input').val() + "&myname=" + myUserName,
 						success: function (data) {
 							for (var i = 0; i < data.length; i++) {
-								html += '<div id="searchUser' + data[i].name + '\"><span>' + data[i].name + '</span> <button class="btn btn-outline-success my-2 my-sm-0"  id="addBtn' + data[i].name + '\" onclick=\"add(\'' + myUserName + "\',\'" + data[i].name + '\')\">Add</button></div>\n'
+								html += '<div id="searchUser' + data[i].name + '\"><span><strong>' + data[i].name + '</strong></span> <button class="btn btn-outline-success my-2 my-sm-0"  id="addBtn' + data[i].name + '\" onclick=\"add(\'' + myUserName + "\',\'" + data[i].name + '\')\">Add</button></div>\n'
 							}
 							$('#dropdown-menu-search div').remove();
 							$('dropdown-menu-search').html("");
@@ -198,6 +165,7 @@
 			});
 		}
 	</script>
+	<script src="{{ url_for('static', filename='js/script.js')}}"></script>
 </body>
 
 
