@@ -3,18 +3,10 @@
 
 <head>
 	<meta charset="UTF-8">
-	<title>Chat MMT</title>
+	<title>P2P Chat</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<meta name="description" content="" />
-	<meta name="keywords" content="" />
-	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/animate.css')}}">
 	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/bootstrap.min.css')}}">
-	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/line-awesome.css')}}">
-	<link rel="stylesheet" type="text/css"
-		href="{{ url_for('static', filename='css/line-awesome-font-awesome.min.css')}}">
-	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/font-awesome.min.css')}}">
 	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style.css')}}">
-	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/responsive.css')}}">
 	<link rel="icon" href="{{ url_for('static', filename='img/banner.png')}}">
 </head>
 
@@ -38,7 +30,8 @@
 		</nav>
 	</header>
 	<div id="alert"></div>
-
+	<!-- <video id="myVideo" muted controls></video>
+	<video id="friendVideo" controls></video> -->
 	<div class="wrapper">
 
 		<section class="messages-page">
@@ -110,7 +103,7 @@
 			</div>
 		</section>
 	</div>
-	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+	<script src="{{ url_for('static', filename='js/jquery.min.js')}}"></script>
 	<script>
 		$(document).ready(function () {
 			var html = "";

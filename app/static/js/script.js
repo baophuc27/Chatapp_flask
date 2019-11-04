@@ -1,15 +1,25 @@
+var serverAddr = "10.228.240.33";
+var serverPort = "4200";
+var socket = null;
+
 var username = document.getElementById("myname");
-var message = document.getElementById("message"),
-  btn_send = document.getElementById("send"),
-  chat = document.getElementById("chat"),
-  file = document.getElementById("File"),
-  btn_upload = document.getElementById("btn-upload");
+var message = document.getElementById("message");
+var btn_send = document.getElementById("send");
+var chat = document.getElementById("chat");
+
+var file = document.getElementById("File");
+var btn_upload = document.getElementById("btn-upload");
 var currentFile;
 var incomingFile = {};
+var receivedSize = 0;
+var fileReader = new FileReader();
+const BYTES_PER_CHUNK = 1200;
+var currentChunk;
 file.onchange = function() {
   currentFile = this.files[0];
   btn_upload.innerText = currentFile.name;
 };
+
 var numConnnection = 0;
 var connection = [];
 var chatBoxCss = [];
@@ -19,6 +29,7 @@ var isinChat = false;
 
 var url = window.location.href;
 var myname = url.split("=")[1];
+
 // set RTCPeerConnection
 
 window.RTCPeerConnection =
@@ -43,45 +54,22 @@ var configuration = {
       credential: "10e15110-f729-11e9-816b-322c48b34491",
       urls: [
         "turn:ss-turn2.xirsys.com:80?transport=udp",
-        "turn:ss-turn2.xirsys.com:3478?transport=udp",
-        "turn:ss-turn2.xirsys.com:80?transport=tcp",
         "turn:ss-turn2.xirsys.com:3478?transport=tcp"
       ]
     }
   ]
 };
 
-var serverAddr = "10.20.72.51";
-var serverPort = "4200";
-var socket = null;
-
 function handleMessage(data) {
   switch (data.type) {
     case "reject":
-      btn = $("#li" + data.from + " button")[0];
-      btn.className = "btn btn-outline-danger";
-      btn.innerText = "Closed";
-      btn.disabled = true;
-      currentBox = document.getElementById("box" + data.from);
-      currentBox.innerHTML +=
-        `<div class="message-left message"><p class="bg-danger text-white">` +
-        data.from +
-        ` rejected request</p></div>`;
-      conn = findConn(data.from);
-      conn["state"] = "reject";
+      handleReject(data.from);
       break;
     case "notify":
       noti(data.message);
-      if (data.status == "online") {
-        $("#button" + data.username)[0].className = "btn btn-primary";
-        $("#button" + data.username)[0].disabled = false;
-      } else if (data.status == "offline") {
-        $("#button" + data.username)[0].className = "btn btn-dark";
-        $("#button" + data.username)[0].disabled = true;
-      }
+      handleState(data.username, data.status);
       break;
     case "onlineState":
-      console.log(data.usersOnline);
       $(".card .usr-mg-info h3")
         .toArray()
         .forEach(v => {
@@ -93,9 +81,6 @@ function handleMessage(data) {
             $("#button" + v.innerText)[0].disabled = false;
           }
         });
-      break;
-    case "connect":
-      // username.value = data.from;
       break;
     case "offer":
       Confirm(
@@ -122,26 +107,7 @@ function handleMessage(data) {
       }
       break;
     case "close":
-      findConn(data.from).dataChannel.close();
-      findConn(data.from).peerConnection.close();
-      currentBox = document.getElementById("box" + data.from);
-      $("#li" + data.from + " button")[0].className = "btn btn-danger";
-      $("#li" + data.from + " button")[0].innerText = "Closed";
-      $("#li" + data.from + " button")[0].disabled = true;
-      currentBox.innerHTML +=
-        `<div class="message-left message"><p class="bg-danger text-white">` +
-        data.from +
-        ` close connection` +
-        `</p></div>`;
-      if (!isinChat) {
-        connection.forEach((c, i, o) => {
-          if (c.username == data.from) {
-            document.getElementById("box" + c.username).remove();
-            document.getElementById("li" + c.username).remove();
-            o.splice(i, 1);
-          }
-        });
-      }
+      handleClose(data.from);
       break;
     default:
       break;
@@ -170,19 +136,13 @@ function openDataChannel(dc, name) {
           incomingFile["filename"] = data.filename;
           incomingFile["filesize"] = data.filesize;
           incomingFile["name"] = data.name;
+          incomingFile["filedata"] = [];
+          receivedSize = 0;
           break;
       }
     } else {
-      currentBox = document.getElementById("box" + incomingFile.name);
-      var anchor = document.createElement("a");
-      anchor.href = URL.createObjectURL(event.data);
-      anchor.download = incomingFile.filename;
-      anchor.textContent = incomingFile.filename;
-      currentBox.innerHTML +=
-        `<div class="message-left message"><p>` +
-        anchor.outerHTML +
-        `</p></div>`;
-      currentBox.scrollTop = currentBox.scrollHeight - currentBox.clientHeight;
+      chunkData = new Blob([event.data]);
+      mergeChunk(chunkData);
     }
   };
 
@@ -253,10 +213,6 @@ function ask(name) {
       console.log("Error: ", error);
     }
   );
-  // peerConnection.ondatachannel = function(ev) {
-  //   NewdataChannel = ev.channel;
-  //   openDataChannel(NewdataChannel);
-  // };
   peerConnection.onicecandidate = function(event) {
     if (event.candidate) {
       socket.send(
@@ -299,8 +255,8 @@ btn_send.addEventListener("click", function(event) {
       name: myname
     };
     currentConn["datachannel"].send(JSON.stringify(data));
-
-    currentConn["datachannel"].send(currentFile);
+    currentChunk = 0;
+    readNextChunk();
     var anchor = document.createElement("a");
     anchor.href = URL.createObjectURL(currentFile);
     anchor.download = currentFile.name;
@@ -312,9 +268,9 @@ btn_send.addEventListener("click", function(event) {
   }
   currentBox.scrollTop = currentBox.scrollHeight - currentBox.clientHeight;
   file.value = null;
-  currentFile = null;
   btn_upload.innerText = "Send file";
 });
+
 // giao diện
 function enterEV() {
   if (event.which == 13 || event.keyCode == 13) {
@@ -410,74 +366,8 @@ function displayBoxChat(name) {
     }
   });
 }
-function findConn(name) {
-  for (let i = 0; i < connection.length; i++) {
-    if (connection[i].username == name) {
-      return connection[i];
-    }
-  }
-  return null;
-}
-function findPC(name) {
-  for (let i = 0; i < connection.length; i++) {
-    if (connection[i].username == name) {
-      return connection[i].peerConnection;
-    }
-  }
-  return null;
-}
-function findDC(name) {
-  for (let i = 0; i < connection.length; i++) {
-    if (connection[i].username == name) {
-      return connection[i].dataChannel;
-    }
-  }
-  return null;
-}
-$(document).ready(function() {
-  url = window.location.href;
-  myname = url.split("=")[1];
-  console.log(myname);
-  socket = new WebSocket("ws:" + serverAddr + ":" + serverPort);
-  socket.onopen = function(e) {
-    socket.send(JSON.stringify({ username: myname }));
-    socket.send(JSON.stringify({ type: "onlineState" }));
-  };
-  socket.onmessage = function(event) {
-    handleMessage(JSON.parse(event.data));
-  };
-  socket.onclose = function(event) {
-    if (event.wasClean) {
-    } else {
-      console.log("close");
-    }
-  };
-  socket.onerror = function(error) {
-    alert(`[error] ${error.message}`);
-  };
-  console.log(socket);
-});
-function offChat(name) {
-  findDC(name).close();
-  findPC(name).close();
-  socket.send(
-    JSON.stringify({
-      type: "close",
-      from: myname,
-      username: name
-    })
-  );
-  currentBox = document.getElementById("box" + name);
-  currentBox.innerHTML +=
-    `<div class="message-right message"><p class="bg-danger text-white">` +
-    `close connection with ` +
-    name +
-    `</p></div>`;
-  return false;
-}
 
 function Confirm(title, msg, $true, $false, $data) {
-  /*change*/
   var $content =
     "<div class='dialog-ovelay'>" +
     "<div class='dialog'><header>" +
@@ -523,6 +413,115 @@ function Confirm(title, msg, $true, $false, $data) {
         $(this).remove();
       });
   });
+}
+
+// utilities
+function findConn(name) {
+  for (let i = 0; i < connection.length; i++) {
+    if (connection[i].username == name) {
+      return connection[i];
+    }
+  }
+  return null;
+}
+function findPC(name) {
+  for (let i = 0; i < connection.length; i++) {
+    if (connection[i].username == name) {
+      return connection[i].peerConnection;
+    }
+  }
+  return null;
+}
+function findDC(name) {
+  for (let i = 0; i < connection.length; i++) {
+    if (connection[i].username == name) {
+      return connection[i].dataChannel;
+    }
+  }
+  return null;
+}
+$(document).ready(function() {
+  url = window.location.href;
+  myname = url.split("=")[1];
+  socket = new WebSocket("ws:" + serverAddr + ":" + serverPort);
+  socket.onopen = function(e) {
+    socket.send(JSON.stringify({ username: myname }));
+    socket.send(JSON.stringify({ type: "onlineState" }));
+  };
+  socket.onmessage = function(event) {
+    handleMessage(JSON.parse(event.data));
+  };
+  socket.onclose = function(event) {
+    if (event.wasClean) {
+    } else {
+      console.log("close");
+    }
+  };
+  socket.onerror = function(error) {
+    alert(`[error] ${error.message}`);
+  };
+});
+function offChat(name) {
+  findDC(name).close();
+  findPC(name).close();
+  socket.send(
+    JSON.stringify({
+      type: "close",
+      from: myname,
+      username: name
+    })
+  );
+  currentBox = document.getElementById("box" + name);
+  currentBox.innerHTML +=
+    `<div class="message-right message"><p class="bg-danger text-white">` +
+    `close connection with ` +
+    name +
+    `</p></div>`;
+  return false;
+}
+function handleReject(name) {
+  btn = $("#li" + name + " button")[0];
+  btn.className = "btn btn-outline-danger";
+  btn.innerText = "Closed";
+  btn.disabled = true;
+  currentBox = document.getElementById("box" + name);
+  currentBox.innerHTML +=
+    `<div class="message-left message"><p class="bg-danger text-white">` +
+    name +
+    ` rejected request</p></div>`;
+  conn = findConn(name);
+  conn["state"] = "reject";
+}
+function handleState(name, state) {
+  if (state == "online") {
+    $("#button" + name)[0].className = "btn btn-primary";
+    $("#button" + name)[0].disabled = false;
+  } else if (state == "offline") {
+    $("#button" + name)[0].className = "btn btn-dark";
+    $("#button" + name)[0].disabled = true;
+  }
+}
+function handleClose(name) {
+  findConn(name).dataChannel.close();
+  findConn(name).peerConnection.close();
+  currentBox = document.getElementById("box" + name);
+  $("#li" + name + " button")[0].className = "btn btn-danger";
+  $("#li" + name + " button")[0].innerText = "Closed";
+  $("#li" + name + " button")[0].disabled = true;
+  currentBox.innerHTML +=
+    `<div class="message-left message"><p class="bg-danger text-white">` +
+    name +
+    ` close connection` +
+    `</p></div>`;
+  if (!isinChat) {
+    connection.forEach((c, i, o) => {
+      if (c.username == name) {
+        document.getElementById("box" + c.username).remove();
+        document.getElementById("li" + c.username).remove();
+        o.splice(i, 1);
+      }
+    });
+  }
 }
 function handleOffer(data) {
   currentConn["name"] = data.from;
@@ -597,4 +596,38 @@ function noti(message) {
   $(".noti").fadeOut(2500, function() {
     $(this).remove();
   });
+}
+
+// gửi File
+function readNextChunk() {
+  var start = BYTES_PER_CHUNK * currentChunk;
+  var end = Math.min(currentFile.size, start + BYTES_PER_CHUNK);
+  fileReader.readAsArrayBuffer(currentFile.slice(start, end));
+}
+function mergeChunk(newChunk) {
+  incomingFile["filedata"].push(newChunk);
+  receivedSize += newChunk.size;
+  if (receivedSize >= incomingFile.filesize) {
+    createDownload();
+  }
+}
+
+fileReader.onload = function() {
+  currentConn.datachannel.send(fileReader.result);
+  currentChunk++;
+  if (BYTES_PER_CHUNK * currentChunk < currentFile.size) {
+    readNextChunk();
+  } else {
+    currentFile = null;
+  }
+};
+function createDownload() {
+  currentBox = document.getElementById("box" + incomingFile.name);
+  var anchor = document.createElement("a");
+  anchor.href = URL.createObjectURL(new Blob(incomingFile["filedata"]));
+  anchor.download = incomingFile.filename;
+  anchor.textContent = incomingFile.filename;
+  currentBox.innerHTML +=
+    `<div class="message-left message"><p>` + anchor.outerHTML + `</p></div>`;
+  currentBox.scrollTop = currentBox.scrollHeight - currentBox.clientHeight;
 }
