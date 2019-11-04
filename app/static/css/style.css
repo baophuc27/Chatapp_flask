@@ -5449,3 +5449,10 @@ a:hover {
 	font-weight: 400;
 	float:left;
 }
+.searchUser{
+	justify-content: space-between;
+	align-items: center;
+}
+.searchUser btn{
+	border: 2px solid;
+}

@@ -57,11 +57,14 @@ def signup():
 @app.route("/main")
 def mainPage():
     name=request.args.get('name')
-    id = dbHandler.getId(name)
-    avatar = dbHandler.getAvatar(name)
-    session['user'] = User(id, name, avatar).__dict__
-    session['name']=name
-    return render_template("messages.html")
+    # id = dbHandler.getId(name)
+    # avatar = dbHandler.getAvatar(name)
+    # session['user'] = User(id, name, avatar).__dict__
+    # # session['name']=name
+    if 'name' in session and session['name']==name:
+        return render_template("messages.html")
+    else:
+        abort(404)
 
 @app.route("/signin", methods=["POST", "GET"])
 def signin():
@@ -96,9 +99,13 @@ def addContact():
 @app.route("/checkname")
 def check():
     name=request.args.get('name')
-    return dbHandler.checkUserName(name)
+    if str(name)==str():
+         return "True"
+    return str(dbHandler.checkUserName(name))
 
-
+@app.errorhandler(404)
+def page_not_found(error):
+    return render_template('404.html'),404
 
 @app.context_processor
 def utility_processor():

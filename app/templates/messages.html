@@ -1,8 +1,5 @@
 <!DOCTYPE html>
 <html>
-
-<!-- Mirrored from gambolthemes.net/workwise_demo/HTML/messages.html by HTTrack Website Copier/3.x [XR&CO'2014], Sun, 28 Apr 2019 14:19:42 GMT -->
-
 <head>
 	<meta charset="UTF-8">
 	<title>Chat MMT</title>
@@ -22,8 +19,8 @@
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
 		integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-		<link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" type="text/css" rel="stylesheet">
-		<link rel="icon" href="{{ url_for('static', filename='img/banner.png')}}">
+	<link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" type="text/css" rel="stylesheet">
+	<link rel="icon" href="{{ url_for('static', filename='img/banner.png')}}">
 </head>
 
 
@@ -44,14 +41,9 @@
 				</a>
 			</div>
 		</nav>
-		<div class="menu-item">
-			{% for user in json_data %}
-			<a href="#" class="btn btn-primary" onclick="ask('myna0')">{{user.name}}</a>
-			{% endfor %}
-		</div>
 	</header>
 	<div id="alert"></div>
-	
+
 	<div class="wrapper">
 
 		<section class="messages-page">
@@ -129,7 +121,7 @@
 					<div class=" row" id="frontpage">
 						<div class="friend-info">
 							<div class="row">
-									{% for x in contactList(session['user'].name) %}
+								{% for x in contactList(session['user'].name) %}
 								<div class="col-lg-4">
 									<div class="card-deck">
 										<div class="card">
@@ -163,15 +155,16 @@
 		$(document).ready(function () {
 			var html = "";
 			var url = window.location.href;
-			var myUserName = url.split('=')[1]
+			var myName = url.split('=')[1];
+			var myUserName = myName.split('#')[0];
 			$('#search-input').keyup(function () {
 				if ($('#search-input').val() != "") {
 					$.ajax({
 						dataType: "json",
-						url: "/search?search-input=" + $('#search-input').val()+"&myname="+myUserName,
+						url: "/search?search-input=" + $('#search-input').val() + "&myname=" + myUserName,
 						success: function (data) {
 							for (var i = 0; i < data.length; i++) {
-								html += '<div id="searchUser' + data[i].name + '\"><span>' + data[i].name + '</span> <button class="btn btn-outline-success my-2 my-sm-0"  id="addBtn' + data[i].name + '\" onclick=\"add(\'' + myUserName + "\',\'" + data[i].name + '\')\">Add</button></div>\n'
+								html += '<div class="searhUser" id="searchUser' + data[i].name + '\"><span>' + data[i].name + '</span> <button class="btn btn-outline-success my-2 my-sm-0"  id="addBtn' + data[i].name + '\" onclick=\"add(\'' + myUserName + "\',\'" + data[i].name + '\')\">Add</button></div>\n'
 							}
 							$('#dropdown-menu-search div').remove();
 							$('dropdown-menu-search').html("");
@@ -191,11 +184,11 @@
 				dataType: "json",
 				url: "/addContact?name=" + myname + "&cname=" + cname,
 				success: function (data) {
-					$('div#searchUser'+data.cname).remove();
-					var ale="Bạn vừa thêm <strong>"+data.cname+"</strong> vào danh sách liên lạc!!!";
+					$('div#searchUser' + data.cname).remove();
+					var ale = "Bạn vừa thêm <strong>" + data.cname + "</strong> vào danh sách liên lạc!!!";
 					$('#alert').html(ale);
 					$('#alert').addClass("alert alert-success");
-					$("#alert").delay(2000).slideUp(500, function() {
+					$("#alert").delay(2000).slideUp(500, function () {
 						$(this).html("");
 						$(this).removeClass("alert alert-success");
 						document.getElementById("alert").style.display = "block";
