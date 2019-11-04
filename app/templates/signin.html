@@ -1,38 +1,137 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>MMT</title>
-    <link rel="stylesheet" href="">
-    <link rel="icon" href="banner.png" >
-    <link rel="stylesheet" href="https://raw.githubusercontent.com/daneden/animate.css/master/animate.css">
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>CHAT MMT</title>
+	<link href="https://fonts.googleapis.com/css?family=Roboto|Courgette|Pacifico:400,700" rel="stylesheet">
+	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/bootstrap.min.css')}}">
+	<link rel="icon" href="{{ url_for('static', filename='img/banner.png')}}">
+	<style type="text/css">
+		body {
+			color: #4e4e4e;
+			font-family: 'Roboto', sans-serif;
+			background-image: url("https://images.pexels.com/photos/743986/pexels-photo-743986.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940");
+		}
 
+		h2 {
+			font-family: 'Courgette', sans-serif;
+		}
 
+		.form-control {
+			background: #f2f2f2;
+			font-size: 16px;
+			border-color: transparent;
+			box-shadow: none !important;
+		}
+
+		.form-control:focus {
+			border-color: #91d5a8;
+			background: #e9f5ee;
+		}
+
+		.form-control,
+		.btn {
+			border-radius: 2px;
+		}
+
+		.login-form {
+			width: 380px;
+			margin: 0 auto;
+		}
+
+		.login-form h2 {
+			margin: 0;
+			padding: 30px 0;
+			font-size: 34px;
+		}
+
+		.login-form .avatar {
+			margin: 0 auto 30px;
+			width: 100px;
+			height: 100px;
+			border-radius: 50%;
+			z-index: 9;
+			background: #4aba70;
+			padding: 15px;
+			box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.1);
+		}
+
+		.login-form .avatar img {
+			width: 100%;
+		}
+
+		.login-form form {
+			color: #7a7a7a;
+			border-radius: 4px;
+			margin-bottom: 20px;
+			background: #fff;
+			box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3);
+			padding: 30px;
+		}
+
+		.login-form .btn {
+			font-size: 16px;
+			line-height: 26px;
+			min-width: 120px;
+			font-weight: bold;
+			background: #4aba70;
+			border: none;
+		}
+
+		.login-form .btn:hover,
+		.login-form .btn:focus {
+			background: #40aa65;
+			outline: none !important;
+		}
+
+		.checkbox-inline {
+			margin-top: 14px;
+		}
+
+		.checkbox-inline input {
+			margin-top: 3px;
+		}
+
+		.login-form a {
+			color: #4aba70;
+		}
+
+		.login-form a:hover {
+			text-decoration: underline;
+		}
+
+		.hint-text {
+			color: #999;
+			text-align: center;
+			padding-bottom: 15px;
+		}
+	</style>
 </head>
-<body>
-    <div class="container">
-        <div class="header">
-            <nav class="navbar navbar-expand-lg bg-dark navbar-dark">
-                    <ul class="navbar-nav">
-                            <li class="nav-item">
-                              <a class="nav-link" href="/">Sign up</a>
-                            </li>
-                          </ul>
-            </nav>
-        </div>
 
-        <div class="jumbotron">
-            <h1 class="fadeInUp">CHAT MMT</h1>
-            <form action="/signin" class="form-signup" method="POST">
-                <input type="text" name="name" id="name" class="form-control" placeholder="Username" >
-                <input type="password" name="password" id="password" class="form-control" placeholder="Password">
-                <button id="btnSignUp" type="submit" class="btn btn-lg btn-primary btn-block">Sign in</button>
-            </form>
-        </div>
-    </div>
+<body>
+	<div class="login-form">
+		<h2 class="text-center">Login MMT</h2>
+		<form action="/signin" method="post">
+			<div class="avatar">
+				<img src="{{ url_for('static', filename='img/banner.png')}}" alt="Avatar">
+			</div>
+			<div class="form-group">
+				<input type="text" class="form-control input-lg" name="name" placeholder="Username" required="required">
+			</div>
+			<div class="form-group">
+				<input type="password" class="form-control input-lg" name="password" placeholder="Password"
+					required="required">
+			</div>
+			<div class="form-group clearfix">
+				<button type="submit" class="btn btn-primary btn-lg">Sign in</button>
+			</div>
+		</form>
+		<div class="hint-text">Don't have an account? <a href="/signupPage">Sign up here</a></div>
+	</div>
 </body>
+<script src="{{ url_for('static', filename='js/jquery.min.js')}}"></script>
+
 </html>
